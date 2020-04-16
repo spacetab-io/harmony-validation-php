@@ -2,30 +2,35 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
-use function Amp\Promise\wait;
 
-class CountableTestCase extends TestCase
+class CountableTestCase extends AsyncTestCase
 {
     /** @var string */
     protected $classUnderTest;
 
-    /** @var mixed[] */
+    /** @var array<mixed> */
     protected $parameters = [];
 
     /** @var Rule */
     protected $testObject;
 
     /**
-     * @param mixed[] $data
+     * CountableTestCase constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
+     * @param string $classUnderTest
      * @param mixed ...$parameters
      */
     public function __construct(
         ?string $name,
         array $data,
-        string $dataName,
+        $dataName,
         string $classUnderTest,
         ...$parameters
     ) {
@@ -35,9 +40,10 @@ class CountableTestCase extends TestCase
         parent::__construct($name, $data, $dataName);
     }
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
+        parent::setUp();
+
         $className = $this->classUnderTest;
 
         $this->testObject = new $className(...$this->parameters);
@@ -48,43 +54,43 @@ class CountableTestCase extends TestCase
         $this->assertInstanceOf(Rule::class, $this->testObject);
     }
 
-    public function testValidateFailsWhenPassingAnInteger(): void
+    public function testValidateFailsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(1));
+        $result = yield $this->testObject->validate(1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(1.1));
+        $result = yield $this->testObject->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingABoolean(): void
+    public function testValidateFailsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(true));
+        $result = yield $this->testObject->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(null));
+        $result = yield $this->testObject->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAResource(): void
+    public function testValidateFailsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -95,7 +101,7 @@ class CountableTestCase extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait($this->testObject->validate($resource));
+        $result = yield $this->testObject->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
@@ -103,29 +109,29 @@ class CountableTestCase extends TestCase
         fclose($resource);
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(static function (): void {
-        }));
+        $result = yield $this->testObject->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(new \DateTimeImmutable()));
+        $result = yield $this->testObject->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAString(): void
+    public function testValidateFailsWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate('Some string'));
+        $result = yield $this->testObject->validate('Some string');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Set.Countable', $result->getErrors()[0]->getMessage());

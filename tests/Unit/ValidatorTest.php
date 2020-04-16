@@ -2,27 +2,27 @@
 
 namespace HarmonyIO\ValidationTest\Unit;
 
+use Amp\PHPUnit\AsyncTestCase;
 use Amp\Promise;
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\MinimumLength;
 use HarmonyIO\Validation\Validator;
-use function Amp\Promise\wait;
 
-class ValidatorTest extends TestCase
+class ValidatorTest extends AsyncTestCase
 {
     public function testValidateReturnsPromise(): void
     {
         $this->assertInstanceOf(
             Promise::class,
-            (new Validator(new MinimumLength(3)))->validate('Test value')
+            (new Validator(new MinimumLength(3)))->validate('Test value'),
         );
     }
 
-    public function testValidateFailsOnInvalidValidation(): void
+    public function testValidateFailsOnInvalidValidation(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Validator(new MinimumLength(20)))->validate('Test value'));
+        $result = yield (new Validator(new MinimumLength(20)))->validate('Test value');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MinimumLength', $result->getFirstError()->getMessage());
@@ -30,10 +30,10 @@ class ValidatorTest extends TestCase
         $this->assertSame(20, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsOnValidValidation(): void
+    public function testValidateSucceedsOnValidValidation(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Validator(new MinimumLength(3)))->validate('Test value'));
+        $result = yield (new Validator(new MinimumLength(3)))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

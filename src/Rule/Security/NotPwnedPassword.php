@@ -3,10 +3,8 @@
 namespace HarmonyIO\Validation\Rule\Security;
 
 use Amp\Promise;
-use HarmonyIO\Cache\Ttl;
 use HarmonyIO\HttpClient\Client\Client;
 use HarmonyIO\HttpClient\Message\CachingRequest;
-use HarmonyIO\HttpClient\Message\Request;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Parameter;
 use HarmonyIO\Validation\Result\Result;
@@ -58,6 +56,7 @@ final class NotPwnedPassword implements Rule
     }
 
     /**
+     * @param string $password
      * @return Promise<string>
      */
     private function request(string $password): Promise
@@ -70,11 +69,13 @@ final class NotPwnedPassword implements Rule
         });
     }
 
-    private function buildRequest(string $password): Request
+    private function buildRequest(string $password): CachingRequest
     {
-        return (new CachingRequest(self::class, new Ttl(Ttl::ONE_HOUR), $this->buildUrl($password)))
-            ->addHeader('Accept', self::REQUEST_ACCEPT_HEADER)
-        ;
+        $caching = new CachingRequest(self::class, $this->buildUrl($password));
+        $request = $caching->getRequest();
+        $request->addHeader('Accept', self::REQUEST_ACCEPT_HEADER);
+
+        return $caching;
     }
 
     private function buildUrl(string $password): string

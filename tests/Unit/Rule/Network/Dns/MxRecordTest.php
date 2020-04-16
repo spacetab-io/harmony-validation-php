@@ -2,34 +2,38 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\Dns;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Dns\MxRecord;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class MxRecordTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * MxRecordTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, MxRecord::class);
     }
 
-    public function testValidateFailsWhenPassingADomainWithoutAnMxRecord(): void
+    public function testValidateFailsWhenPassingADomainWithoutAnMxRecord(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MxRecord())->validate('example.com'));
+        $result = yield (new MxRecord())->validate('example123.com');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Dns.MxRecord', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingADomainWithAnMxRecord(): void
+    public function testValidateSucceedsWhenPassingADomainWithAnMxRecord(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MxRecord())->validate('gmail.com'));
+        $result = yield (new MxRecord())->validate('gmail.com');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

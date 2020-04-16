@@ -2,34 +2,38 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\NoControlCharacters;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class NoControlCharactersTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * NoControlCharactersTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, NoControlCharacters::class, 10);
     }
 
-    public function testValidateFailsWhenPassingAStringContainingControlCharacters(): void
+    public function testValidateFailsWhenPassingAStringContainingControlCharacters(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NoControlCharacters())->validate('€€€€€€€€€' . chr(0)));
+        $result = yield (new NoControlCharacters())->validate('€€€€€€€€€' . chr(0));
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.NoControlCharacters', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAStringWithoutControlCharacters(): void
+    public function testValidateSucceedsWhenPassingAStringWithoutControlCharacters(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NoControlCharacters())->validate('€€€€€€€€€€€'));
+        $result = yield (new NoControlCharacters())->validate('€€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

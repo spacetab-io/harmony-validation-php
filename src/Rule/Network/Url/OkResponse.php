@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\Validation\Rule\Network\Url;
 
-use Amp\Artax\DnsException;
+use Amp\Dns\DnsException;
+use Amp\Http\Client\Request;
 use Amp\Promise;
 use HarmonyIO\HttpClient\Client\Client;
-use HarmonyIO\HttpClient\Message\Request;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;

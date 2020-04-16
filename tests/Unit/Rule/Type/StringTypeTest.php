@@ -2,25 +2,29 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Type;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Type\StringType;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class StringTypeTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * StringTypeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, StringType::class);
     }
 
-    public function testValidateSucceedsWhenPassingAString(): void
+    public function testValidateSucceedsWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new StringType())->validate('€'));
+        $result = yield (new StringType())->validate('€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

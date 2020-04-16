@@ -2,34 +2,38 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Hash;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Hash\HashMatches;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class HashMatchesTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * HashMatchesTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, HashMatches::class, '1234567890');
     }
 
-    public function testValidateFailsWhenHashIsInvalid(): void
+    public function testValidateFailsWhenHashIsInvalid(): Generator
     {
         /** @var Result $result */
-        $result = wait((new HashMatches('1234567890'))->validate('123456789'));
+        $result = yield (new HashMatches('1234567890'))->validate('123456789');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Hash.HashMatches', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenHashIsValid(): void
+    public function testValidateSucceedsWhenHashIsValid(): Generator
     {
         /** @var Result $result */
-        $result = wait((new HashMatches('1234567890'))->validate('1234567890'));
+        $result = yield (new HashMatches('1234567890'))->validate('1234567890');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

@@ -1,5 +1,5 @@
 {
-    "name": "harmonyio/validation",
+    "name": "spacetab-io/harmony-validation",
     "description": "Asynchronous validation library",
     "type": "library",
     "license": "MIT",
@@ -9,10 +9,8 @@
             "email": "info@pieterhordijk.com"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
-        "php": "^7.3",
+        "php": ">=7.3",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -22,26 +20,26 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
-        "amphp/amp": "^2.1.1",
-        "amphp/artax": "^3.0.14",
-        "amphp/dns": "^1.0.0",
-        "amphp/file": "^0.3.5",
-        "amphp/parallel-functions": "^0.1.3",
-        "amphp/process": "^1.1.0",
-        "amphp/uri": "^0.1.3",
-        "egulias/email-validator": "^2.1.7",
-        "harmonyio/cache": "dev-master",
-        "harmonyio/http-client": "dev-master",
-        "myclabs/php-enum": "^1.7.0",
-        "react/promise": "^2.7.1",
-        "wikimedia/ip-set": "^2.0.1"
+        "amphp/amp": "^2.4",
+        "amphp/dns": "^1.2",
+        "amphp/file": "^1.0",
+        "amphp/parallel-functions": "^0.1",
+        "amphp/process": "^1.1",
+        "amphp/uri": "^0.1",
+        "egulias/email-validator": "^2.1",
+        "myclabs/php-enum": "^1.7",
+        "react/promise": "^2.7",
+        "wikimedia/ip-set": "^2.1"
     },
     "require-dev": {
+        "amphp/phpunit-util": "^1.3",
+        "brianium/paratest": "^4.0",
         "harmonyio/php-codesniffer-ruleset": "dev-master",
-        "harmonyio/phpunit-extension": "dev-master",
         "maglnet/composer-require-checker": "^2.0.0",
-        "phpunit/phpunit": "^8.1.3",
+        "phpunit/phpunit": "^9",
         "slevomat/coding-standard": "^5.0.4",
+        "spacetab-io/harmony-cache": "^1.1",
+        "spacetab-io/harmony-http-client": "^1.0",
         "squizlabs/php_codesniffer": "^3.4.2"
     },
     "autoload": {
@@ -59,5 +57,9 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "suggest": {
+        "spacetab-io/harmony-cache": "Install it for caching API requests",
+        "spacetab-io/harmony-http-client": "Install it for caching API requests"
     }
 }

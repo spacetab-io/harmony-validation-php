@@ -2,33 +2,39 @@
 
 namespace HarmonyIO\ValidationTest\Integration\Rule\Network\Domain;
 
-use Amp\Artax\DefaultClient;
-use Amp\Redis\Client as RedisClient;
-use HarmonyIO\Cache\Provider\Redis;
-use HarmonyIO\HttpClient\Client\ArtaxClient;
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\PHPUnit\AsyncTestCase;
+use Amp\Redis\Config;
+use Amp\Redis\Redis as RedisClient;
+use Amp\Redis\RemoteExecutor;
+use Generator;
+use HarmonyIO\Cache\Provider\Redis as RedisProvider;
+use HarmonyIO\HttpClient\Client\HttpClient;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Domain\Tld;
-use function Amp\Promise\wait;
 
-class TldTest extends TestCase
+class TldTest extends AsyncTestCase
 {
-    /** @var ArtaxClient */
+    /** @var HttpClient */
     private $httpClient;
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
-        $this->httpClient = new ArtaxClient(new DefaultClient(), new Redis(new RedisClient('tcp://localhost:6379')));
+        parent::setUp();
+
+        $client = HttpClientBuilder::buildDefault();
+        $redis  = new RedisProvider(new RedisClient(new RemoteExecutor(Config::fromUri('tcp://localhost:6379'))));
+
+        $this->httpClient = new HttpClient($client, $redis);
     }
 
     /**
      * @dataProvider provideInvalidTlds
      */
-    public function testNonExistingYouTubeIdsToReturnFalse(string $tld): void
+    public function testNonExistingYouTubeIdsToReturnFalse(string $tld): Generator
     {
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate($tld));
+        $result = yield (new Tld($this->httpClient))->validate($tld);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Domain.Tld', $result->getFirstError()->getMessage());
@@ -37,17 +43,17 @@ class TldTest extends TestCase
     /**
      * @dataProvider provideValidTlds
      */
-    public function testValidYouTubeIdsToReturnTrue(string $tld): void
+    public function testValidYouTubeIdsToReturnTrue(string $tld): Generator
     {
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate($tld));
+        $result = yield (new Tld($this->httpClient))->validate($tld);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidTlds(): array
     {
@@ -57,7 +63,7 @@ class TldTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidTlds(): array
     {

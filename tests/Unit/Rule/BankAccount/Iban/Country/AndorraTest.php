@@ -2,88 +2,92 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\BankAccount\Iban\Country;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\BankAccount\Iban\Country\Andorra;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class AndorraTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * AndorraTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Andorra::class);
     }
 
-    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): void
+    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('XD1200012030200359100100'));
+        $result = yield (new Andorra())->validate('XD1200012030200359100100');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveChecksum(): void
+    public function testValidateFailsWhenStringDoesNotHaveChecksum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('ADx200012030200359100100'));
+        $result = yield (new Andorra())->validate('ADx200012030200359100100');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): void
+    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD12x0012030200359100100'));
+        $result = yield (new Andorra())->validate('AD12x0012030200359100100');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): void
+    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD120001203020035910010x'));
+        $result = yield (new Andorra())->validate('AD120001203020035910010x');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooShort(): void
+    public function testValidateFailsWhenStringIsTooShort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD120001203020035910010'));
+        $result = yield (new Andorra())->validate('AD120001203020035910010');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooLong(): void
+    public function testValidateFailsWhenStringIsTooLong(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD12000120302003591001000'));
+        $result = yield (new Andorra())->validate('AD12000120302003591001000');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenChecksumFails(): void
+    public function testValidateFailsWhenChecksumFails(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD12000120302003591001001'));
+        $result = yield (new Andorra())->validate('AD12000120302003591001001');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Andorra', $result->getFirstError()->getMessage());
     }
-    
-    public function testValidateSucceedsWhenPassingAValidIbanString(): void
+
+    public function testValidateSucceedsWhenPassingAValidIbanString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Andorra())->validate('AD1200012030200359100100'));
+        $result = yield (new Andorra())->validate('AD1200012030200359100100');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

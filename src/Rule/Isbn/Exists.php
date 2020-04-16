@@ -48,7 +48,7 @@ class Exists implements Rule
 
             /** @var Response $response */
             $response = yield $this->httpClient->request(
-                new CachingRequest(self::class, new Ttl(Ttl::ONE_WEEK), $url, 'GET')
+                new CachingRequest(self::class, $url, 'GET', new Ttl(Ttl::ONE_WEEK)),
             );
 
             if ($response->getNumericalStatusCode() !== 200) {

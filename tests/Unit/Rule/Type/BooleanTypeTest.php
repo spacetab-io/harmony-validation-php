@@ -2,65 +2,65 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Type;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Type\BooleanType;
-use function Amp\Promise\wait;
 
-class BooleanTypeTest extends TestCase
+class BooleanTypeTest extends AsyncTestCase
 {
     public function testRuleImplementsInterface(): void
     {
         $this->assertInstanceOf(Rule::class, new BooleanType());
     }
 
-    public function testValidateFailsWhenPassingAnInteger(): void
+    public function testValidateFailsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(1));
+        $result = yield (new BooleanType())->validate(1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(1.1));
+        $result = yield (new BooleanType())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnArray(): void
+    public function testValidateFailsWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate([]));
+        $result = yield (new BooleanType())->validate([]);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(new \DateTimeImmutable()));
+        $result = yield (new BooleanType())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(null));
+        $result = yield (new BooleanType())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAResource(): void
+    public function testValidateFailsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -71,7 +71,7 @@ class BooleanTypeTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate($resource));
+        $result = yield (new BooleanType())->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
@@ -79,29 +79,29 @@ class BooleanTypeTest extends TestCase
         fclose($resource);
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(static function (): void {
-        }));
+        $result = yield (new BooleanType())->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAString(): void
+    public function testValidateFailsWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate('€'));
+        $result = yield (new BooleanType())->validate('€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.BooleanType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingABoolean(): void
+    public function testValidateSucceedsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new BooleanType())->validate(true));
+        $result = yield (new BooleanType())->validate(true);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

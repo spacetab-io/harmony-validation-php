@@ -2,11 +2,11 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Result;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Result\Error;
 use HarmonyIO\Validation\Result\Parameter;
 
-class ErrorTest extends TestCase
+class ErrorTest extends AsyncTestCase
 {
     public function testGetMessage(): void
     {

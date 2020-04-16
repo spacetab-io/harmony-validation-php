@@ -2,75 +2,81 @@
 
 namespace HarmonyIO\ValidationTest\Integration\Rule\Network\Url;
 
-use Amp\Artax\DefaultClient;
-use Amp\Redis\Client as RedisClient;
-use HarmonyIO\Cache\Provider\Redis;
-use HarmonyIO\HttpClient\Client\ArtaxClient;
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\PHPUnit\AsyncTestCase;
+use Amp\Redis\Config;
+use Amp\Redis\Redis as RedisClient;
+use Amp\Redis\RemoteExecutor;
+use Generator;
+use HarmonyIO\Cache\Provider\Redis as RedisProvider;
+use HarmonyIO\HttpClient\Client\HttpClient;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Url\OkResponse;
-use function Amp\Promise\wait;
 
-class OkResponseTest extends TestCase
+class OkResponseTest extends AsyncTestCase
 {
-    /** @var ArtaxClient */
+    /** @var HttpClient */
     private $httpClient;
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
-        $this->httpClient = new ArtaxClient(new DefaultClient(), new Redis(new RedisClient('tcp://localhost:6379')));
+        parent::setUp();
+
+        $client = HttpClientBuilder::buildDefault();
+        $redis  = new RedisProvider(new RedisClient(new RemoteExecutor(Config::fromUri('tcp://localhost:6379'))));
+
+        $this->httpClient = new HttpClient($client, $redis);
     }
 
-    public function testValidateFailsOnNotFoundResponse(): void
+    public function testValidateFailsOnNotFoundResponse(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('http://pieterhordijk.com/dlksjksjfkhdsfjk'));
+        $result = yield (new OkResponse($this->httpClient))->validate('http://google.com/dlksjksjfkhdsfjk');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.OkResponse', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsOnNonExistingDomain(): void
+    public function testValidateFailsOnNonExistingDomain(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('http://dkhj3kry43iufhr3e.example.com'));
+        $result = yield (new OkResponse($this->httpClient))->validate('http://dkhj3kry43iufhr3e.example.com');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.OkResponse', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenResponseHasErrorStatusCode(): void
+    public function testValidateFailsWhenResponseHasErrorStatusCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://httpbin.org/status/500'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://httpbin.org/status/500');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.OkResponse', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsOnRedirectedOkResponse(): void
+    public function testValidateSucceedsOnRedirectedOkResponse(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('http://pieterhordijk.com'));
+        $result = yield (new OkResponse($this->httpClient))->validate('http://google.com');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsOnOkResponse(): void
+    public function testValidateSucceedsOnOkResponse(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://google.com');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsOnOkResponseWithPath(): void
+    public function testValidateSucceedsOnOkResponseWithPath(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/contact'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://google.com/imghp');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

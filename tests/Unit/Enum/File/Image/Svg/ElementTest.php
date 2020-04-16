@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Enum\File\Image\Svg;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Enum\File\Image\Svg\Element;
 
-class ElementTest extends TestCase
+class ElementTest extends AsyncTestCase
 {
     public function testExistsReturnsFalseWhenElementDoesNotExist(): void
     {

@@ -2,52 +2,56 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Numeric;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Numeric\NumericType;
 use HarmonyIO\ValidationTest\Unit\Rule\NumericTestCase;
-use function Amp\Promise\wait;
 
 class NumericTypeTest extends NumericTestCase
 {
     /**
-     * @param mixed[] $data
+     * NumericTypeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, NumericType::class);
     }
 
-    public function testValidateSucceedsWhenPassingAnInteger(): void
+    public function testValidateSucceedsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NumericType())->validate(1));
+        $result = yield (new NumericType())->validate(1);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloat(): void
+    public function testValidateSucceedsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NumericType())->validate(1.1));
+        $result = yield (new NumericType())->validate(1.1);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsAString(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NumericType())->validate('1'));
+        $result = yield (new NumericType())->validate('1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatAsAString(): void
+    public function testValidateSucceedsWhenPassingAFloatAsAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new NumericType())->validate('1.1'));
+        $result = yield (new NumericType())->validate('1.1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Exception;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Exception\InvalidNumericValue;
 
-class InvalidNumericValueTest extends TestCase
+class InvalidNumericValueTest extends AsyncTestCase
 {
     public function testMessageIsFormattedCorrectly(): void
     {

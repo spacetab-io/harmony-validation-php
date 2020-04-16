@@ -2,34 +2,38 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\AlphaNumeric;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class AlphaNumericTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * AlphaNumericTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, AlphaNumeric::class);
     }
 
-    public function testValidateFailsWhenPassingANonAlphaNumericalString(): void
+    public function testValidateFailsWhenPassingANonAlphaNumericalString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new AlphaNumeric())->validate(' sdakjhsakh3287632786378'));
+        $result = yield (new AlphaNumeric())->validate(' sdakjhsakh3287632786378');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.AlphaNumeric', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAnAlphaNumericalString(): void
+    public function testValidateSucceedsWhenPassingAnAlphaNumericalString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new AlphaNumeric())->validate('sdakjhsakh3287632786378'));
+        $result = yield (new AlphaNumeric())->validate('sdakjhsakh3287632786378');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

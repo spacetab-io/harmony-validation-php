@@ -2,25 +2,29 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\MinimumLength;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class MinimumLengthTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * MinimumLengthTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, MinimumLength::class, 10);
     }
 
-    public function testValidateFailsWhenPassingAStringSmallerThanTheMinimumLength(): void
+    public function testValidateFailsWhenPassingAStringSmallerThanTheMinimumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MinimumLength(10))->validate('€€€€€€€€€'));
+        $result = yield (new MinimumLength(10))->validate('€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MinimumLength', $result->getFirstError()->getMessage());
@@ -28,19 +32,19 @@ class MinimumLengthTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAStringLongerThanTheMinimumLength(): void
+    public function testValidateSucceedsWhenPassingAStringLongerThanTheMinimumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MinimumLength(10))->validate('€€€€€€€€€€€'));
+        $result = yield (new MinimumLength(10))->validate('€€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMinimumLength(): void
+    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMinimumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MinimumLength(10))->validate('€€€€€€€€€€'));
+        $result = yield (new MinimumLength(10))->validate('€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

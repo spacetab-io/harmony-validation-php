@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Result;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Result\Parameter;
 
-class ParameterTest extends TestCase
+class ParameterTest extends AsyncTestCase
 {
     public function testGetKey(): void
     {

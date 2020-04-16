@@ -2,29 +2,28 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Combinator;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Combinator\All;
 use HarmonyIO\Validation\Rule\Combinator\Any;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Text\MaximumLength;
 use HarmonyIO\Validation\Rule\Text\MinimumLength;
-use function Amp\Promise\wait;
 
-class AnyTest extends TestCase
+class AnyTest extends AsyncTestCase
 {
-    public function testRuleImplementsInterface(): void
+    public function testRuleImplementsInterface()
     {
         $this->assertInstanceOf(Rule::class, new Any());
     }
 
-    public function testValidateFailsWhenAllRulesAreInvalid(): void
+    public function testValidateFailsWhenAllRulesAreInvalid()
     {
         /** @var Result $result */
-        $result = wait((new Any(
+        $result = yield (new Any(
             new MinimumLength(11),
             new MaximumLength(9)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertFalse($result->isValid());
         $this->assertCount(2, $result->getErrors());
@@ -32,59 +31,59 @@ class AnyTest extends TestCase
         $this->assertSame('Text.MaximumLength', $result->getErrors()[1]->getMessage());
     }
 
-    public function testValidateSucceedsWhenNoRulesAreAdded(): void
+    public function testValidateSucceedsWhenNoRulesAreAdded()
     {
         /** @var Result $result */
-        $result = wait((new Any())->validate('Test value'));
+        $result = yield (new Any())->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenBothRulesAreValid(): void
+    public function testValidateSucceedsWhenBothRulesAreValid()
     {
         /** @var Result $result */
-        $result = wait((new Any(
+        $result = yield (new Any(
             new MinimumLength(3),
             new MaximumLength(15)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenFirstRuleIsValid(): void
+    public function testValidateSucceedsWhenFirstRuleIsValid()
     {
         /** @var Result $result */
-        $result = wait((new Any(
+        $result = yield (new Any(
             new MinimumLength(11),
             new MaximumLength(15)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenLastRuleIsValid(): void
+    public function testValidateSucceedsWhenLastRuleIsValid()
     {
         /** @var Result $result */
-        $result = wait((new Any(
+        $result = yield (new Any(
             new MinimumLength(3),
             new MaximumLength(9)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenRulesContainAllRuleWithMoreErrorsThanAnyRules(): void
+    public function testValidateSucceedsWhenRulesContainAllRuleWithMoreErrorsThanAnyRules()
     {
         /** @var Result $result */
-        $result = wait((new Any(new All(
+        $result = yield (new Any(new All(
             new MaximumLength(3),
             new MaximumLength(3),
             new MaximumLength(3)
-        ), new MinimumLength(3)))->validate('Test value'));
+        ), new MinimumLength(3)))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

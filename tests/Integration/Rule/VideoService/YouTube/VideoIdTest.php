@@ -2,33 +2,39 @@
 
 namespace HarmonyIO\ValidationTest\Integration\Rule\VideoService\YouTube;
 
-use Amp\Artax\DefaultClient;
-use Amp\Redis\Client as RedisClient;
-use HarmonyIO\Cache\Provider\Redis;
-use HarmonyIO\HttpClient\Client\ArtaxClient;
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\PHPUnit\AsyncTestCase;
+use Amp\Redis\Config;
+use Amp\Redis\Redis as RedisClient;
+use Amp\Redis\RemoteExecutor;
+use Generator;
+use HarmonyIO\Cache\Provider\Redis as RedisProvider;
+use HarmonyIO\HttpClient\Client\HttpClient;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\VideoService\YouTube\VideoId;
-use function Amp\Promise\wait;
 
-class VideoIdTest extends TestCase
+class VideoIdTest extends AsyncTestCase
 {
-    /** @var ArtaxClient */
+    /** @var HttpClient */
     private $httpClient;
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
-        $this->httpClient = new ArtaxClient(new DefaultClient(), new Redis(new RedisClient('tcp://localhost:6379')));
+        parent::setUp();
+
+        $client = HttpClientBuilder::buildDefault();
+        $redis  = new RedisProvider(new RedisClient(new RemoteExecutor(Config::fromUri('tcp://localhost:6379'))));
+
+        $this->httpClient = new HttpClient($client, $redis);
     }
 
     /**
      * @dataProvider provideNonExistingYouTubeIds
      */
-    public function testValidateFailsOnNonExistingYouTubeId(string $id): void
+    public function testValidateFailsOnNonExistingYouTubeId(string $id): Generator
     {
         /** @var Result $result */
-        $result = wait((new VideoId($this->httpClient))->validate($id));
+        $result = yield (new VideoId($this->httpClient))->validate($id);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoId', $result->getFirstError()->getMessage());
@@ -37,17 +43,17 @@ class VideoIdTest extends TestCase
     /**
      * @dataProvider provideValidYouTubeIds
      */
-    public function testValidateSucceedsOnValidYouTubeId(string $id): void
+    public function testValidateSucceedsOnValidYouTubeId(string $id): Generator
     {
         /** @var Result $result */
-        $result = wait((new VideoId($this->httpClient))->validate($id));
+        $result = yield (new VideoId($this->httpClient))->validate($id);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideNonExistingYouTubeIds(): array
     {
@@ -58,7 +64,7 @@ class VideoIdTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidYouTubeIds(): array
     {

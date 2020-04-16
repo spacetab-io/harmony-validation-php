@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Enum\File\Image\Svg;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Enum\File\Image\Svg\Attribute;
 
-class AttributeTest extends TestCase
+class AttributeTest extends AsyncTestCase
 {
     public function testExistsReturnsFalseWhenAttributeDoesNotExist(): void
     {

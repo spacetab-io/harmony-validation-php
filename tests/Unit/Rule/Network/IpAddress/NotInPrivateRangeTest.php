@@ -2,17 +2,21 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\IpAddress;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\IpAddress\NotInPrivateRange;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class NotInPrivateRangeTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * NotInPrivateRangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, NotInPrivateRange::class);
     }
@@ -20,10 +24,10 @@ class NotInPrivateRangeTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIpv4Addresses
      */
-    public function testValidateFailsWhenPassingAnIpv4AddressThatIsWithinThePrivateRange(string $ipAddress): void
+    public function testValidateFailsWhenPassingAnIpv4AddressThatIsWithinThePrivateRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInPrivateRange())->validate($ipAddress));
+        $result = yield (new NotInPrivateRange())->validate($ipAddress);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.NotInPrivateRange', $result->getFirstError()->getMessage());
@@ -32,10 +36,10 @@ class NotInPrivateRangeTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIpv6Addresses
      */
-    public function testValidateFailsWhenPassingAnIpv6AddressThatIsWithinThePrivateRange(string $ipAddress): void
+    public function testValidateFailsWhenPassingAnIpv6AddressThatIsWithinThePrivateRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInPrivateRange())->validate($ipAddress));
+        $result = yield (new NotInPrivateRange())->validate($ipAddress);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.NotInPrivateRange', $result->getFirstError()->getMessage());
@@ -44,10 +48,10 @@ class NotInPrivateRangeTest extends StringTestCase
     /**
      * @dataProvider provideValidIpv4Addresses
      */
-    public function testValidateSucceedsWhenPassingAnIpv4AddressThatIsNotWithinThePrivateRange(string $ipAddress): void
+    public function testValidateSucceedsWhenPassingAnIpv4AddressThatIsNotWithinThePrivateRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInPrivateRange())->validate($ipAddress));
+        $result = yield (new NotInPrivateRange())->validate($ipAddress);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
@@ -56,17 +60,17 @@ class NotInPrivateRangeTest extends StringTestCase
     /**
      * @dataProvider provideValidIpv6Addresses
      */
-    public function testValidateSucceedsWhenPassingAnIpv6AddressThatIsNotWithinThePrivateRange(string $ipAddress): void
+    public function testValidateSucceedsWhenPassingAnIpv6AddressThatIsNotWithinThePrivateRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInPrivateRange())->validate($ipAddress));
+        $result = yield (new NotInPrivateRange())->validate($ipAddress);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidIpv4Addresses(): array
     {
@@ -89,7 +93,7 @@ class NotInPrivateRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidIpv6Addresses(): array
     {
@@ -99,7 +103,7 @@ class NotInPrivateRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidIpv4Addresses(): array
     {
@@ -117,7 +121,7 @@ class NotInPrivateRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidIpv6Addresses(): array
     {

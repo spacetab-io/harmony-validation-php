@@ -2,68 +2,65 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Numeric;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Numeric\Integer;
 use HarmonyIO\Validation\Rule\Rule;
-use function Amp\Promise\wait;
 
-class IntegerTest extends TestCase
+class IntegerTest extends AsyncTestCase
 {
-    /**
-     * @param mixed[] $data
-     */
-    public function testRuleImplementsInterface(): void
+    public function testRuleImplementsInterface()
     {
         $this->assertInstanceOf(Rule::class, new Integer());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(1.1));
+        $result = yield (new Integer())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingABoolean(): void
+    public function testValidateFailsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(true));
+        $result = yield (new Integer())->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnArray(): void
+    public function testValidateFailsWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate([]));
+        $result = yield (new Integer())->validate([]);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(new \DateTimeImmutable()));
+        $result = yield (new Integer())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(null));
+        $result = yield (new Integer())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAResource(): void
+    public function testValidateFailsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -74,7 +71,7 @@ class IntegerTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new Integer())->validate($resource));
+        $result = yield (new Integer())->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
@@ -82,38 +79,38 @@ class IntegerTest extends TestCase
         fclose($resource);
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(static function (): void {
-        }));
+        $result = yield (new Integer())->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAString(): void
+    public function testValidateFailsWhenPassingAFloatAsAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate('1.1'));
+        $result = yield (new Integer())->validate('1.1');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Integer', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsAString(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate('1'));
+        $result = yield (new Integer())->validate('1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnInteger(): void
+    public function testValidateSucceedsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Integer())->validate(1));
+        $result = yield (new Integer())->validate(1);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

@@ -12,7 +12,7 @@ use function HarmonyIO\Validation\succeed;
 
 final class Maximum implements Rule
 {
-    /** @var int */
+    /** @var float */
     private $maximum;
 
     public function __construct(float $maximum)

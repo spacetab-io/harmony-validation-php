@@ -2,3 +2,4 @@
 /.idea
 /phpunit.xml
 /phpcs.xml
+composer.lock

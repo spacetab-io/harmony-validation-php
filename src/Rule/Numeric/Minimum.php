@@ -12,7 +12,7 @@ use function HarmonyIO\Validation\succeed;
 
 final class Minimum implements Rule
 {
-    /** @var int */
+    /** @var float */
     private $minimum;
 
     public function __construct(float $minimum)

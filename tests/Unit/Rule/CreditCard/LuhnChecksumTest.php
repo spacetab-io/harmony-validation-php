@@ -5,14 +5,13 @@ namespace HarmonyIO\ValidationTest\Unit\Rule\CreditCard;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\CreditCard\LuhnChecksum;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class LuhnChecksumTest extends StringTestCase
 {
     /**
      * @param mixed[] $data
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, LuhnChecksum::class);
     }
@@ -20,10 +19,10 @@ class LuhnChecksumTest extends StringTestCase
     /**
      * @dataProvider provideInvalidCreditCardNumbers
      */
-    public function testValidateFailsWhenPassingAnInvalidCreditCardNumber(string $creditCardNumber): void
+    public function testValidateFailsWhenPassingAnInvalidCreditCardNumber(string $creditCardNumber)
     {
         /** @var Result $result */
-        $result = wait((new LuhnChecksum())->validate($creditCardNumber));
+        $result = yield (new LuhnChecksum())->validate($creditCardNumber);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('CreditCard.LuhnChecksum', $result->getFirstError()->getMessage());
@@ -32,10 +31,10 @@ class LuhnChecksumTest extends StringTestCase
     /**
      * @dataProvider provideValidCreditCardNumbers
      */
-    public function testValidateSucceedsWhenPassingAValidCreditCardNumber(string $creditCardNumber): void
+    public function testValidateSucceedsWhenPassingAValidCreditCardNumber(string $creditCardNumber)
     {
         /** @var Result $result */
-        $result = wait((new LuhnChecksum())->validate($creditCardNumber));
+        $result = yield (new LuhnChecksum())->validate($creditCardNumber);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

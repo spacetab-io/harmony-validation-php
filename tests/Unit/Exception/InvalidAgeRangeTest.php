@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Exception;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Exception\InvalidAgeRange;
 
-class InvalidAgeRangeTest extends TestCase
+class InvalidAgeRangeTest extends AsyncTestCase
 {
     public function testMessageIsFormattedCorrectly(): void
     {

@@ -2,18 +2,22 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Exception\InvalidNumericalRange;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\LengthRange;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class LengthRangeTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * LengthRangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, LengthRange::class, 10, 12);
     }
@@ -26,10 +30,10 @@ class LengthRangeTest extends StringTestCase
         new LengthRange(12, 10);
     }
 
-    public function testValidateFailsWhenPassingAStringSmallerThanTheMinimumLength(): void
+    public function testValidateFailsWhenPassingAStringSmallerThanTheMinimumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LengthRange(10, 12))->validate('€€€€€€€€€'));
+        $result = yield (new LengthRange(10, 12))->validate('€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MinimumLength', $result->getFirstError()->getMessage());
@@ -37,10 +41,10 @@ class LengthRangeTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAStringLargerThanTheMaximumLength(): void
+    public function testValidateFailsWhenPassingAStringLargerThanTheMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LengthRange(10, 12))->validate('€€€€€€€€€€€€€'));
+        $result = yield (new LengthRange(10, 12))->validate('€€€€€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MaximumLength', $result->getFirstError()->getMessage());
@@ -48,28 +52,28 @@ class LengthRangeTest extends StringTestCase
         $this->assertSame(12, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAStringLargerThanTheMinimumLengthAndSmallerThanMaximumLength(): void
+    public function testValidateSucceedsWhenPassingAStringLargerThanTheMinimumLengthAndSmallerThanMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LengthRange(10, 12))->validate('€€€€€€€€€€€'));
+        $result = yield (new LengthRange(10, 12))->validate('€€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMinimumLength(): void
+    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMinimumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LengthRange(10, 12))->validate('€€€€€€€€€€'));
+        $result = yield (new LengthRange(10, 12))->validate('€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAStringExactlyTheMaximumLength(): void
+    public function testValidateSucceedsWhenPassingAStringExactlyTheMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LengthRange(10, 12))->validate('€€€€€€€€€€€€'));
+        $result = yield (new LengthRange(10, 12))->validate('€€€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

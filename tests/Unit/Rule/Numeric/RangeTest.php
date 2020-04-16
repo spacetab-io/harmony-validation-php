@@ -2,19 +2,23 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Numeric;
 
+use Generator;
 use HarmonyIO\Validation\Exception\InvalidNumericalRange;
 use HarmonyIO\Validation\Exception\InvalidNumericValue;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Numeric\Range;
 use HarmonyIO\ValidationTest\Unit\Rule\NumericTestCase;
-use function Amp\Promise\wait;
 
 class RangeTest extends NumericTestCase
 {
     /**
-     * @param mixed[] $data
+     * RangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Range::class, 13, 16);
     }
@@ -43,125 +47,125 @@ class RangeTest extends NumericTestCase
         new Range(51, 50);
     }
 
-    public function testValidateFailsWhenPassingAnIntegerSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAnIntegerSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(12));
+        $result = yield (new Range(13, 16))->validate(12);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(17));
+        $result = yield (new Range(13, 16))->validate(17);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('12'));
+        $result = yield (new Range(13, 16))->validate('12');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('17'));
+        $result = yield (new Range(13, 16))->validate('17');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAFloatSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(12.9));
+        $result = yield (new Range(13, 16))->validate(12.9);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(16.1));
+        $result = yield (new Range(13, 16))->validate(16.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('12.9'));
+        $result = yield (new Range(13, 16))->validate('12.9');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('16.1'));
+        $result = yield (new Range(13, 16))->validate('16.1');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerWithInRange(): void
+    public function testValidateSucceedsWhenPassingAnIntegerWithInRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(15));
+        $result = yield (new Range(13, 16))->validate(15);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsStringWithInRange(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsStringWithInRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('15'));
+        $result = yield (new Range(13, 16))->validate('15');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatWithInRange(): void
+    public function testValidateSucceedsWhenPassingAFloatWithInRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate(15.5));
+        $result = yield (new Range(13, 16))->validate(15.5);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatAsStringWithInRange(): void
+    public function testValidateSucceedsWhenPassingAFloatAsStringWithInRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Range(13, 16))->validate('15.5'));
+        $result = yield (new Range(13, 16))->validate('15.5');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

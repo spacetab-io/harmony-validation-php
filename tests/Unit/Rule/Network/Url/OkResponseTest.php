@@ -2,16 +2,16 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\Url;
 
-use Amp\Artax\DnsException;
+use Amp\Dns\DnsException;
+use Amp\Http\Client\Request;
 use Amp\Success;
+use Generator;
 use HarmonyIO\HttpClient\Client\Client;
-use HarmonyIO\HttpClient\Message\Request;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Url\OkResponse;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function Amp\Promise\wait;
 
 class OkResponseTest extends StringTestCase
 {
@@ -19,9 +19,13 @@ class OkResponseTest extends StringTestCase
     private $httpClient;
 
     /**
-     * @param mixed[] $data
+     * OkResponseTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         $this->httpClient = $this->createMock(Client::class);
 
@@ -29,37 +33,37 @@ class OkResponseTest extends StringTestCase
     }
 
     //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::setUp();
     }
 
-    public function testValidateFailsWhenPassingAUrlWithoutProtocol(): void
+    public function testValidateFailsWhenPassingAUrlWithoutProtocol(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('pieterhordijk.com'));
+        $result = yield (new OkResponse($this->httpClient))->validate('pieterhordijk.com');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.Url', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAUrlWithoutHost(): void
+    public function testValidateFailsWhenPassingAUrlWithoutHost(): Generator
     {
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.Url', $result->getFirstError()->getMessage());
     }
 
-    public function testValidatePassesUrlToClient(): void
+    public function testValidatePassesUrlToClient(): Generator
     {
         $this->httpClient
             ->method('request')
             ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://pieterhordijk.com', $request->getArtaxRequest()->getUri());
+                $this->assertSame('https://pieterhordijk.com', (string) $request->getUri());
 
                 $response = $this->createMock(Response::class);
 
@@ -72,15 +76,15 @@ class OkResponseTest extends StringTestCase
             })
         ;
 
-        wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com'));
+        yield (new OkResponse($this->httpClient))->validate('https://pieterhordijk.com');
     }
 
-    public function testValidateFailsWhenRequestResultsInANon200Response(): void
+    public function testValidateFailsWhenRequestResultsInANon200Response(): Generator
     {
         $this->httpClient
             ->method('request')
             ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://pieterhordijk.com/foobar', $request->getArtaxRequest()->getUri());
+                $this->assertSame('https://pieterhordijk.com/foobar', (string) $request->getUri());
 
                 $response = $this->createMock(Response::class);
 
@@ -99,36 +103,36 @@ class OkResponseTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/foobar'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/foobar');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.OkResponse', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenRequestResultsADnsException(): void
+    public function testValidateFailsWhenRequestResultsADnsException(): Generator
     {
         $this->httpClient
             ->method('request')
             ->willReturnCallback(function (Request $request): void {
-                $this->assertSame('https://pieterhordijk.com/foobar', $request->getArtaxRequest()->getUri());
+                $this->assertSame('https://pieterhordijk.com/foobar', (string) $request->getUri());
 
                 throw new DnsException();
             })
         ;
 
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/foobar'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/foobar');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.OkResponse', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsTrueWhenClientReturnsOkResponse(): void
+    public function testValidateReturnsTrueWhenClientReturnsOkResponse(): Generator
     {
         $this->httpClient
             ->method('request')
             ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://pieterhordijk.com/contact', $request->getArtaxRequest()->getUri());
+                $this->assertSame('https://pieterhordijk.com/contact', (string) $request->getUri());
 
                 $response = $this->createMock(Response::class);
 
@@ -147,7 +151,7 @@ class OkResponseTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/contact'));
+        $result = yield (new OkResponse($this->httpClient))->validate('https://pieterhordijk.com/contact');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

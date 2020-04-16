@@ -2,65 +2,65 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\NationalId;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\NationalId\Bsn;
 use HarmonyIO\Validation\Rule\Rule;
-use function Amp\Promise\wait;
 
-class BsnTest extends TestCase
+class BsnTest extends AsyncTestCase
 {
-    public function testRuleImplementsInterface(): void
+    public function testRuleImplementsInterface()
     {
         $this->assertInstanceOf(Rule::class, new Bsn());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(1.1));
+        $result = yield (new Bsn())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingABoolean(): void
+    public function testValidateFailsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(true));
+        $result = yield (new Bsn())->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnArray(): void
+    public function testValidateFailsWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate([]));
+        $result = yield (new Bsn())->validate([]);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(new \DateTimeImmutable()));
+        $result = yield (new Bsn())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(null));
+        $result = yield (new Bsn())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAResource(): void
+    public function testValidateFailsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -71,7 +71,7 @@ class BsnTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new Bsn())->validate($resource));
+        $result = yield (new Bsn())->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
@@ -79,56 +79,56 @@ class BsnTest extends TestCase
         fclose($resource);
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(static function (): void {
-        }));
+        $result = yield (new Bsn())->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerWhichIsTooShort(): void
+    public function testValidateFailsWhenPassingAnIntegerWhichIsTooShort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(12345678));
+        $result = yield (new Bsn())->validate(12345678);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerWhichIsTooLong(): void
+    public function testValidateFailsWhenPassingAnIntegerWhichIsTooLong(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate(1234567890));
+        $result = yield (new Bsn())->validate(1234567890);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAStringWhichIsTooShort(): void
+    public function testValidateFailsWhenPassingAStringWhichIsTooShort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate('12345678'));
+        $result = yield (new Bsn())->validate('12345678');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAStringWhichIsTooLong(): void
+    public function testValidateFailsWhenPassingAStringWhichIsTooLong(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate('1234567890'));
+        $result = yield (new Bsn())->validate('1234567890');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAStringContainingNonNumbers(): void
+    public function testValidateFailsWhenPassingAStringContainingNonNumbers(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate('12345678a'));
+        $result = yield (new Bsn())->validate('12345678a');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
@@ -137,10 +137,10 @@ class BsnTest extends TestCase
     /**
      * @dataProvider provideInvalidBsnIntegers
      */
-    public function testValidateFailsWhenPassingAnInvalidInteger(int $bsn): void
+    public function testValidateFailsWhenPassingAnInvalidInteger(int $bsn): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate($bsn));
+        $result = yield (new Bsn())->validate($bsn);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
@@ -149,22 +149,22 @@ class BsnTest extends TestCase
     /**
      * @dataProvider provideInvalidBsnStrings
      */
-    public function testValidateFailsWhenPassingAnInvalidBsnString(string $bsn): void
+    public function testValidateFailsWhenPassingAnInvalidBsnString(string $bsn): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate($bsn));
+        $result = yield (new Bsn())->validate($bsn);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('NationalId.Bsn', $result->getFirstError()->getMessage());
     }
-    
+
     /**
      * @dataProvider provideValidBsnIntegers
      */
-    public function testValidateReturnsTrueWhenPassingAValidInteger(int $bsn): void
+    public function testValidateReturnsTrueWhenPassingAValidInteger(int $bsn): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate($bsn));
+        $result = yield (new Bsn())->validate($bsn);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
@@ -173,17 +173,17 @@ class BsnTest extends TestCase
     /**
      * @dataProvider provideValidBsnStrings
      */
-    public function testValidateReturnsTrueWhenPassingAValidBsnString(string $bsn): void
+    public function testValidateReturnsTrueWhenPassingAValidBsnString(string $bsn): Generator
     {
         /** @var Result $result */
-        $result = wait((new Bsn())->validate($bsn));
+        $result = yield (new Bsn())->validate($bsn);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return int[]
+     * @return array<array<int>>
      */
     public function provideInvalidBsnIntegers(): array
     {
@@ -242,7 +242,7 @@ class BsnTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidBsnStrings(): array
     {
@@ -301,7 +301,7 @@ class BsnTest extends TestCase
     }
 
     /**
-     * @return int[]
+     * @return array<array<int>>
      */
     public function provideValidBsnIntegers(): array
     {
@@ -360,7 +360,7 @@ class BsnTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidBsnStrings(): array
     {

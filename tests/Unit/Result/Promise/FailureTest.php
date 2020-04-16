@@ -3,13 +3,13 @@
 namespace HarmonyIO\ValidationTest\Unit\Result\Promise;
 
 use Amp\Loop;
+use Amp\PHPUnit\AsyncTestCase;
 use Amp\Promise;
-use HarmonyIO\PHPUnitExtension\TestCase;
 use HarmonyIO\Validation\Result\Error;
 use HarmonyIO\Validation\Result\Promise\Failure;
 use HarmonyIO\Validation\Result\Result;
 
-class FailureTest extends TestCase
+class FailureTest extends AsyncTestCase
 {
     public function testObjectImplementsPromise(): void
     {

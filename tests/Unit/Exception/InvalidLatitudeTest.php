@@ -2,10 +2,10 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Exception;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Exception\InvalidLatitude;
 
-class InvalidLatitudeTest extends TestCase
+class InvalidLatitudeTest extends AsyncTestCase
 {
     public function testMessageIsFormattedCorrectly(): void
     {

@@ -2,18 +2,22 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Pattern;
 
+use Generator;
 use HarmonyIO\Validation\Exception\InvalidRegexPattern;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Pattern\Regex;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class RegexTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * RegexTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Regex::class, '~foo~');
     }
@@ -26,19 +30,19 @@ class RegexTest extends StringTestCase
         new Regex('~foo');
     }
 
-    public function testValidateFailsWhenPassingANonMatchingString(): void
+    public function testValidateFailsWhenPassingANonMatchingString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Regex('~foo~'))->validate('bar'));
+        $result = yield (new Regex('~foo~'))->validate('bar');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Pattern.Regex', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAMatchingString(): void
+    public function testValidateSucceedsWhenPassingAMatchingString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Regex('~foo~'))->validate('foo'));
+        $result = yield (new Regex('~foo~'))->validate('foo');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

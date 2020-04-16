@@ -2,25 +2,29 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\MaximumLength;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class MaximumLengthTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * MaximumLengthTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, MaximumLength::class, 10);
     }
 
-    public function testValidateFailsWhenPassingAStringLongerThanTheMaximumLength(): void
+    public function testValidateFailsWhenPassingAStringLongerThanTheMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MaximumLength(10))->validate('€€€€€€€€€€€'));
+        $result = yield (new MaximumLength(10))->validate('€€€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MaximumLength', $result->getFirstError()->getMessage());
@@ -28,19 +32,19 @@ class MaximumLengthTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAStringSmallerThanTheMaximumLength(): void
+    public function testValidateSucceedsWhenPassingAStringSmallerThanTheMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MaximumLength(10))->validate('€€€€€€€€€'));
+        $result = yield (new MaximumLength(10))->validate('€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMaximumLength(): void
+    public function testValidateSucceedsWhenPassingAStringWithExactlyTheMaximumLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new MaximumLength(10))->validate('€€€€€€€€€€'));
+        $result = yield (new MaximumLength(10))->validate('€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

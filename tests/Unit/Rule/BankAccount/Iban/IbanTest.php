@@ -5,14 +5,17 @@ namespace HarmonyIO\ValidationTest\Unit\Rule\BankAccount\Iban;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\BankAccount\Iban\Iban;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class IbanTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * IbanTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Iban::class);
     }
@@ -20,10 +23,10 @@ class IbanTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIbanCodes
      */
-    public function testValidateFailsOnInvalidIban(string $ibanCode): void
+    public function testValidateFailsOnInvalidIban(string $ibanCode)
     {
         /** @var Result $result */
-        $result = wait((new Iban())->validate($ibanCode));
+        $result = yield (new Iban())->validate($ibanCode);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Iban', $result->getFirstError()->getMessage());
@@ -32,10 +35,10 @@ class IbanTest extends StringTestCase
     /**
      * @dataProvider provideValidIbanCodes
      */
-    public function testValidateSucceedsOnValidIban(string $ibanCode): void
+    public function testValidateSucceedsOnValidIban(string $ibanCode)
     {
         /** @var Result $result */
-        $result = wait((new Iban())->validate($ibanCode));
+        $result = yield (new Iban())->validate($ibanCode);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

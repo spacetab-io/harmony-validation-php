@@ -2,65 +2,65 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Type;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Type\IterableType;
-use function Amp\Promise\wait;
 
-class IterableTypeTest extends TestCase
+class IterableTypeTest extends AsyncTestCase
 {
     public function testRuleImplementsInterface(): void
     {
         $this->assertInstanceOf(Rule::class, new IterableType());
     }
 
-    public function testValidateFailsWhenPassingAnInteger(): void
+    public function testValidateFailsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(1));
+        $result = yield (new IterableType())->validate(1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(1.1));
+        $result = yield (new IterableType())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingABoolean(): void
+    public function testValidateFailsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(true));
+        $result = yield (new IterableType())->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(new \DateTimeImmutable()));
+        $result = yield (new IterableType())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(null));
+        $result = yield (new IterableType())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAResource(): void
+    public function testValidateFailsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -71,7 +71,7 @@ class IterableTypeTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new IterableType())->validate($resource));
+        $result = yield (new IterableType())->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
@@ -79,29 +79,29 @@ class IterableTypeTest extends TestCase
         fclose($resource);
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate(static function (): void {
-        }));
+        $result = yield (new IterableType())->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAString(): void
+    public function testValidateFailsWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate('€'));
+        $result = yield (new IterableType())->validate('€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.IterableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAnArray(): void
+    public function testValidateSucceedsWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new IterableType())->validate([]));
+        $result = yield (new IterableType())->validate([]);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

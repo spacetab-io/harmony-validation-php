@@ -2,25 +2,29 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Text;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Text\Length;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class LengthTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * LengthTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Length::class, 10);
     }
 
-    public function testValidateFailsWhenPassingAStringSmallerThanTheLength(): void
+    public function testValidateFailsWhenPassingAStringSmallerThanTheLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Length(10))->validate('€€€€€€€€€'));
+        $result = yield (new Length(10))->validate('€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.Length', $result->getFirstError()->getMessage());
@@ -28,10 +32,10 @@ class LengthTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAStringLongerThanTheLength(): void
+    public function testValidateFailsWhenPassingAStringLongerThanTheLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Length(10))->validate('€€€€€€€€€€€'));
+        $result = yield (new Length(10))->validate('€€€€€€€€€€€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.Length', $result->getFirstError()->getMessage());
@@ -39,10 +43,10 @@ class LengthTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAStringWithExactlyTheLength(): void
+    public function testValidateSucceedsWhenPassingAStringWithExactlyTheLength(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Length(10))->validate('€€€€€€€€€€'));
+        $result = yield (new Length(10))->validate('€€€€€€€€€€');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

@@ -5,22 +5,21 @@ namespace HarmonyIO\ValidationTest\Unit\Rule\File\Image\Type;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\File\Image\Type\Svg;
 use HarmonyIO\ValidationTest\Unit\Rule\FileTestCase;
-use function Amp\Promise\wait;
 
 class SvgTest extends FileTestCase
 {
     /**
      * @param mixed[] $data
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Svg::class);
     }
 
-    public function testValidateFailsWhenNotMatchingMimeType(): void
+    public function testValidateFailsWhenNotMatchingMimeType()
     {
         /** @var Result $result */
-        $result = wait((new Svg())->validate(TEST_DATA_DIR . '/image/mspaint.gif'));
+        $result = yield (new Svg())->validate(TEST_DATA_DIR . '/image/mspaint.gif');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.MimeType', $result->getFirstError()->getMessage());
@@ -28,37 +27,37 @@ class SvgTest extends FileTestCase
         $this->assertSame('image/svg', $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenImageContainsBrokenXml(): void
+    public function testValidateFailsWhenImageContainsBrokenXml()
     {
         /** @var Result $result */
-        $result = wait((new Svg())->validate(TEST_DATA_DIR . '/image/broken.svg'));
+        $result = yield (new Svg())->validate(TEST_DATA_DIR . '/image/broken.svg');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Type.Svg.ValidElements', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenImageContainsInvalidElements(): void
+    public function testValidateFailsWhenImageContainsInvalidElements()
     {
         /** @var Result $result */
-        $result = wait((new Svg())->validate(TEST_DATA_DIR . '/image/invalid-elements.svg'));
+        $result = yield (new Svg())->validate(TEST_DATA_DIR . '/image/invalid-elements.svg');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Type.Svg.ValidElements', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenImageContainsInvalidAttributes(): void
+    public function testValidateFailsWhenImageContainsInvalidAttributes()
     {
         /** @var Result $result */
-        $result = wait((new Svg())->validate(TEST_DATA_DIR . '/image/invalid-attributes.svg'));
+        $result = yield (new Svg())->validate(TEST_DATA_DIR . '/image/invalid-attributes.svg');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Type.Svg.ValidAttributes', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenImageIsValid(): void
+    public function testValidateSucceedsWhenImageIsValid()
     {
         /** @var Result $result */
-        $result = wait((new Svg())->validate(TEST_DATA_DIR . '/image/example.svg'));
+        $result = yield (new Svg())->validate(TEST_DATA_DIR . '/image/example.svg');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

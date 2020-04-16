@@ -2,17 +2,21 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Uuid;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Uuid\Version3;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class Version3Test extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * Version3Test constructor.
+     *
+     * @param string|null $name
+     * @param array<string> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Version3::class);
     }
@@ -20,10 +24,10 @@ class Version3Test extends StringTestCase
     /**
      * @dataProvider provideInvalidUuids
      */
-    public function testValidateFailsWhenPassingAnInvalidV3UuidString(string $uuid): void
+    public function testValidateFailsWhenPassingAnInvalidV3UuidString(string $uuid): Generator
     {
         /** @var Result $result */
-        $result = wait((new Version3())->validate($uuid));
+        $result = yield (new Version3())->validate($uuid);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Uuid.Version3', $result->getFirstError()->getMessage());
@@ -32,17 +36,17 @@ class Version3Test extends StringTestCase
     /**
      * @dataProvider provideValidUuids
      */
-    public function testValidateSucceedsWhenPassingAValidV3UuidString(string $uuid): void
+    public function testValidateSucceedsWhenPassingAValidV3UuidString(string $uuid): Generator
     {
         /** @var Result $result */
-        $result = wait((new Version3())->validate($uuid));
+        $result = yield (new Version3())->validate($uuid);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidUuids(): array
     {
@@ -60,7 +64,7 @@ class Version3Test extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidUuids(): array
     {

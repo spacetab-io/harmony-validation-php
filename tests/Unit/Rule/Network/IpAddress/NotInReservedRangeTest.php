@@ -2,17 +2,21 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\IpAddress;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\IpAddress\NotInReservedRange;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class NotInReservedRangeTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * NotInReservedRangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, NotInReservedRange::class);
     }
@@ -20,10 +24,10 @@ class NotInReservedRangeTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIpv4Addresses
      */
-    public function testValidateFailsWhenPassingAnIpv4AddressThatIsWithinTheReservedRange(string $ipAddress): void
+    public function testValidateFailsWhenPassingAnIpv4AddressThatIsWithinTheReservedRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInReservedRange())->validate($ipAddress));
+        $result = yield (new NotInReservedRange())->validate($ipAddress);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.NotInReservedRange', $result->getFirstError()->getMessage());
@@ -32,10 +36,10 @@ class NotInReservedRangeTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIpv6Addresses
      */
-    public function testValidateFailsWhenPassingAnIpv6AddressThatIsWithinTheReservedRange(string $ipAddress): void
+    public function testValidateFailsWhenPassingAnIpv6AddressThatIsWithinTheReservedRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInReservedRange())->validate($ipAddress));
+        $result = yield (new NotInReservedRange())->validate($ipAddress);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.NotInReservedRange', $result->getFirstError()->getMessage());
@@ -44,10 +48,10 @@ class NotInReservedRangeTest extends StringTestCase
     /**
      * @dataProvider provideValidIpv4Addresses
      */
-    public function testValidateSucceedsWhenPassingAnIpv4AddressThatIsNotWithinTheReservedRange(string $ipAddress): void
+    public function testValidateSucceedsWhenPassingAnIpv4AddressThatIsNotWithinTheReservedRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInReservedRange())->validate($ipAddress));
+        $result = yield (new NotInReservedRange())->validate($ipAddress);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
@@ -56,17 +60,17 @@ class NotInReservedRangeTest extends StringTestCase
     /**
      * @dataProvider provideValidIpv6Addresses
      */
-    public function testValidateSucceedsWhenPassingAnIpv6AddressThatIsNotWithinTheReservedRange(string $ipAddress): void
+    public function testValidateSucceedsWhenPassingAnIpv6AddressThatIsNotWithinTheReservedRange(string $ipAddress): Generator
     {
         /** @var Result $result */
-        $result = wait((new NotInReservedRange())->validate($ipAddress));
+        $result = yield (new NotInReservedRange())->validate($ipAddress);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidIpv4Addresses(): array
     {
@@ -92,7 +96,7 @@ class NotInReservedRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidIpv6Addresses(): array
     {
@@ -113,7 +117,7 @@ class NotInReservedRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidIpv4Addresses(): array
     {
@@ -134,7 +138,7 @@ class NotInReservedRangeTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidIpv6Addresses(): array
     {

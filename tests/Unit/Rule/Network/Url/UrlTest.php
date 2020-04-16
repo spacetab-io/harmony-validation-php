@@ -2,52 +2,56 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\Url;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Url\Url;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class UrlTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * UrlTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Url::class);
     }
 
-    public function testValidateFailsWhenPassingAUrlWithoutProtocol(): void
+    public function testValidateFailsWhenPassingAUrlWithoutProtocol(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Url())->validate('pieterhordijk.com'));
+        $result = yield (new Url())->validate('pieterhordijk.com');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.Url', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAUrlWithoutHost(): void
+    public function testValidateFailsWhenPassingAUrlWithoutHost(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Url())->validate('https://'));
+        $result = yield (new Url())->validate('https://');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Url.Url', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAValidUrl(): void
+    public function testValidateSucceedsWhenPassingAValidUrl(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Url())->validate('https://pieterhordijk.com'));
+        $result = yield (new Url())->validate('https://pieterhordijk.com');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAValidUrlWithPort(): void
+    public function testValidateSucceedsWhenPassingAValidUrlWithPort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Url())->validate('https://pieterhordijk.com:1337'));
+        $result = yield (new Url())->validate('https://pieterhordijk.com:1337');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

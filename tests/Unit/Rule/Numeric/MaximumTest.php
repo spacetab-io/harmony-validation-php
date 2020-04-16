@@ -2,132 +2,136 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Numeric;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Numeric\Maximum;
 use HarmonyIO\ValidationTest\Unit\Rule\NumericTestCase;
-use function Amp\Promise\wait;
 
 class MaximumTest extends NumericTestCase
 {
     /**
-     * @param mixed[] $data
+     * MaximumTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Maximum::class, 10);
     }
 
-    public function testValidateFailsWhenPassingAnIntegerWhichIsLargerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerWhichIsLargerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(11));
+        $result = yield (new Maximum(10))->validate(11);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(10.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatWhichIsLargerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatWhichIsLargerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(11.1));
+        $result = yield (new Maximum(10))->validate(11.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(10.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringWhichIsLargerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringWhichIsLargerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('11'));
+        $result = yield (new Maximum(10))->validate('11');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(10.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringWhichIsLargerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringWhichIsLargerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('11.1'));
+        $result = yield (new Maximum(10))->validate('11.1');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(10.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedWhenPassingAnIntegerWhichIsLessThanMaximum(): void
+    public function testValidateSucceedWhenPassingAnIntegerWhichIsLessThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(1));
+        $result = yield (new Maximum(10))->validate(1);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedWhenPassingAnIntegerWhichIsExactlyMaximum(): void
+    public function testValidateSucceedWhenPassingAnIntegerWhichIsExactlyMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(10));
+        $result = yield (new Maximum(10))->validate(10);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedWhenPassingAFloatWhichIsLessThanMaximum(): void
+    public function testValidateSucceedWhenPassingAFloatWhichIsLessThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(1.1));
+        $result = yield (new Maximum(10))->validate(1.1);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedWhenPassingAFloatWhichIsExactlyMaximum(): void
+    public function testValidateSucceedWhenPassingAFloatWhichIsExactlyMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate(10.0));
+        $result = yield (new Maximum(10))->validate(10.0);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsAStringWhichIsSmallerThanMaximum(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsAStringWhichIsSmallerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('1'));
+        $result = yield (new Maximum(10))->validate('1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsAStringWhichIsExactlyThanMaximum(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsAStringWhichIsExactlyThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('10'));
+        $result = yield (new Maximum(10))->validate('10');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatAsAStringWhichIsSmallerThanMaximum(): void
+    public function testValidateSucceedsWhenPassingAFloatAsAStringWhichIsSmallerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('1.1'));
+        $result = yield (new Maximum(10))->validate('1.1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatAsAStringWhichIsExactlyThanMaximum(): void
+    public function testValidateSucceedsWhenPassingAFloatAsAStringWhichIsExactlyThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Maximum(10))->validate('10.0'));
+        $result = yield (new Maximum(10))->validate('10.0');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

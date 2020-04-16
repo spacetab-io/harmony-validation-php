@@ -2,15 +2,16 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Security;
 
+use Amp\Http\Client\Request;
 use Amp\Success;
+use Generator;
 use HarmonyIO\HttpClient\Client\Client;
-use HarmonyIO\HttpClient\Message\Request;
+use HarmonyIO\HttpClient\Message\CachingRequest;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Security\NotPwnedPassword;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function Amp\Promise\wait;
 
 class NotPwnedPasswordTest extends StringTestCase
 {
@@ -18,29 +19,32 @@ class NotPwnedPasswordTest extends StringTestCase
     private $httpClient;
 
     /**
-     * @param mixed[] $data
+     * NotPwnedPasswordTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::__construct($name, $data, $dataName, NotPwnedPassword::class, $this->httpClient, 10);
     }
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::setUp();
     }
 
-    public function testValidatePassesCorrectHashToPwnedPasswordsService(): void
+    public function testValidatePassesCorrectHashToPwnedPasswordsService(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', $request->getArtaxRequest()->getUri());
+            ->willReturnCallback(function (CachingRequest $request) {
+                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', (string) $request->getRequest()->getUri());
 
                 $response = $this->createMock(Response::class);
 
@@ -53,15 +57,15 @@ class NotPwnedPasswordTest extends StringTestCase
             })
         ;
 
-        wait((new NotPwnedPassword($this->httpClient, 10))->validate('password'));
+        yield (new NotPwnedPassword($this->httpClient, 10))->validate('password');
     }
 
-    public function testValidateFailsWhenOverThreshold(): void
+    public function testValidateFailsWhenOverThreshold(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', $request->getArtaxRequest()->getUri());
+            ->willReturnCallback(function (CachingRequest $request) {
+                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', (string) $request->getRequest()->getUri());
 
                 $data = "0018A45C4D1DEF81644B54AB7F969B88D65:1\r\n";
                 $data .= "1E4C9B93F3F0682250B6CF8331B7EE68FD8:11\r\n";
@@ -79,7 +83,7 @@ class NotPwnedPasswordTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new NotPwnedPassword($this->httpClient, 10))->validate('password'));
+        $result = yield (new NotPwnedPassword($this->httpClient, 10))->validate('password');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Security.NotPwnedPassword', $result->getFirstError()->getMessage());
@@ -87,12 +91,12 @@ class NotPwnedPasswordTest extends StringTestCase
         $this->assertSame(10, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenExactlyThreshold(): void
+    public function testValidateSucceedsWhenExactlyThreshold(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', $request->getArtaxRequest()->getUri());
+            ->willReturnCallback(function (CachingRequest $request) {
+                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', (string) $request->getRequest()->getUri());
 
                 $data = "0018A45C4D1DEF81644B54AB7F969B88D65:1\r\n";
                 $data .= "1E4C9B93F3F0682250B6CF8331B7EE68FD8:10\r\n";
@@ -110,18 +114,18 @@ class NotPwnedPasswordTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new NotPwnedPassword($this->httpClient, 10))->validate('password'));
+        $result = yield (new NotPwnedPassword($this->httpClient, 10))->validate('password');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateReturnsTrueWhenBelowThreshold(): void
+    public function testValidateReturnsTrueWhenBelowThreshold(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
-                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', $request->getArtaxRequest()->getUri());
+            ->willReturnCallback(function (CachingRequest $request) {
+                $this->assertSame('https://api.pwnedpasswords.com/range/5BAA6', (string) $request->getRequest()->getUri());
 
                 $data = "0018A45C4D1DEF81644B54AB7F969B88D65:1\r\n";
                 $data .= "1E4C9B93F3F0682250B6CF8331B7EE68FD8:9\r\n";
@@ -139,7 +143,7 @@ class NotPwnedPasswordTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new NotPwnedPassword($this->httpClient, 10))->validate('password'));
+        $result = yield (new NotPwnedPassword($this->httpClient, 10))->validate('password');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

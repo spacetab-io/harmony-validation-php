@@ -2,88 +2,92 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\BankAccount\Iban\Country;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\BankAccount\Iban\Country\Denmark;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class DenmarkTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * DenmarkTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Denmark::class);
     }
 
-    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): void
+    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('XK5000400440116243'));
+        $result = yield (new Denmark())->validate('XK5000400440116243');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveChecksum(): void
+    public function testValidateFailsWhenStringDoesNotHaveChecksum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DKx000400440116243'));
+        $result = yield (new Denmark())->validate('DKx000400440116243');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): void
+    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK50x0400440116243'));
+        $result = yield (new Denmark())->validate('DK50x0400440116243');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): void
+    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK500040044011624x'));
+        $result = yield (new Denmark())->validate('DK500040044011624x');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooShort(): void
+    public function testValidateFailsWhenStringIsTooShort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK500040044011624'));
+        $result = yield (new Denmark())->validate('DK500040044011624');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooLong(): void
+    public function testValidateFailsWhenStringIsTooLong(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK50004004401162433'));
+        $result = yield (new Denmark())->validate('DK50004004401162433');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Denmark', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsChecksumFails(): void
+    public function testValidateFailsChecksumFails(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK5000400440116244'));
+        $result = yield (new Denmark())->validate('DK5000400440116244');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Checksum', $result->getFirstError()->getMessage());
     }
-    
-    public function testValidateSucceedsWhenPassingAValidIbanString(): void
+
+    public function testValidateSucceedsWhenPassingAValidIbanString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Denmark())->validate('DK5000400440116243'));
+        $result = yield (new Denmark())->validate('DK5000400440116243');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

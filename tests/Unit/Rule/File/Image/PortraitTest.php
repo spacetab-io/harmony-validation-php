@@ -5,49 +5,48 @@ namespace HarmonyIO\ValidationTest\Unit\Rule\File\Image;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\File\Image\Portrait;
 use HarmonyIO\ValidationTest\Unit\Rule\FileTestCase;
-use function Amp\Promise\wait;
 
 class PortraitTest extends FileTestCase
 {
     /**
      * @param mixed[] $data
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Portrait::class);
     }
 
-    public function testValidateFailsWhenPassingAnUnsupportedImage(): void
+    public function testValidateFailsWhenPassingAnUnsupportedImage()
     {
         /** @var Result $result */
-        $result = wait((new Portrait())->validate(TEST_DATA_DIR . '/file-mimetype-test.txt'));
+        $result = yield (new Portrait())->validate(TEST_DATA_DIR . '/file-mimetype-test.txt');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Image', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnImageWhichWidthIsTheSameAsItsHeight(): void
+    public function testValidateFailsWhenPassingAnImageWhichWidthIsTheSameAsItsHeight()
     {
         /** @var Result $result */
-        $result = wait((new Portrait())->validate(TEST_DATA_DIR . '/image/400x400.png'));
+        $result = yield (new Portrait())->validate(TEST_DATA_DIR . '/image/400x400.png');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Portrait', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnImageWhichWidthIsBiggerThanItsHeight(): void
+    public function testValidateFailsWhenPassingAnImageWhichWidthIsBiggerThanItsHeight()
     {
         /** @var Result $result */
-        $result = wait((new Portrait())->validate(TEST_DATA_DIR . '/image/400x200.png'));
+        $result = yield (new Portrait())->validate(TEST_DATA_DIR . '/image/400x200.png');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('File.Image.Portrait', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAnImageWhichHeightIsBiggerThanItsWidth(): void
+    public function testValidateSucceedsWhenPassingAnImageWhichHeightIsBiggerThanItsWidth()
     {
         /** @var Result $result */
-        $result = wait((new Portrait())->validate(TEST_DATA_DIR . '/image/200x400.png'));
+        $result = yield (new Portrait())->validate(TEST_DATA_DIR . '/image/200x400.png');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

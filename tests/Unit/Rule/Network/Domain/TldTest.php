@@ -3,14 +3,14 @@
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\Domain;
 
 use Amp\Success;
+use Generator;
 use HarmonyIO\HttpClient\Client\Client;
-use HarmonyIO\HttpClient\Message\Request;
+use HarmonyIO\HttpClient\Message\CachingRequest;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\Domain\Tld;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function Amp\Promise\wait;
 
 class TldTest extends StringTestCase
 {
@@ -18,9 +18,13 @@ class TldTest extends StringTestCase
     private $httpClient;
 
     /**
-     * @param mixed[] $data
+     * TldTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         $this->httpClient = $this->createMock(Client::class);
 
@@ -28,21 +32,21 @@ class TldTest extends StringTestCase
     }
 
     //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::setUp();
     }
 
-    public function testValidateUsesCorrectUrl(): void
+    public function testValidateUsesCorrectUrl(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(function (CachingRequest $request) {
                 $this->assertSame(
                     'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
-                    $request->getArtaxRequest()->getUri()
+                    (string) $request->getRequest()->getUri(),
                 );
 
                 $response = $this->createMock(Response::class);
@@ -56,17 +60,17 @@ class TldTest extends StringTestCase
             })
         ;
 
-        wait((new Tld($this->httpClient))->validate('tld'));
+        yield (new Tld($this->httpClient))->validate('tld');
     }
 
-    public function testValidateStripsFirstLineFromResult(): void
+    public function testValidateStripsFirstLineFromResult(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(function (CachingRequest $request) {
                 $this->assertSame(
                     'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
-                    $request->getArtaxRequest()->getUri()
+                    (string) $request->getRequest()->getUri(),
                 );
 
                 $response = $this->createMock(Response::class);
@@ -81,20 +85,20 @@ class TldTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate('foo'));
+        $result = yield (new Tld($this->httpClient))->validate('foo');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Domain.Tld', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateStripsEmptyLastLineFromResult(): void
+    public function testValidateStripsEmptyLastLineFromResult(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(function (CachingRequest $request) {
                 $this->assertSame(
                     'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
-                    $request->getArtaxRequest()->getUri()
+                    (string) $request->getRequest()->getUri(),
                 );
 
                 $response = $this->createMock(Response::class);
@@ -109,20 +113,20 @@ class TldTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate(''));
+        $result = yield (new Tld($this->httpClient))->validate('');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.Domain.Tld', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsOnExactCasingMatch(): void
+    public function testValidateSucceedsOnExactCasingMatch(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(function (CachingRequest $request) {
                 $this->assertSame(
                     'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
-                    $request->getArtaxRequest()->getUri()
+                    (string) $request->getRequest()->getUri(),
                 );
 
                 $response = $this->createMock(Response::class);
@@ -137,20 +141,20 @@ class TldTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate('BAR'));
+        $result = yield (new Tld($this->httpClient))->validate('BAR');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsOnLowerCasingMatch(): void
+    public function testValidateSucceedsOnLowerCasingMatch(): Generator
     {
         $this->httpClient
             ->method('request')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(function (CachingRequest $request) {
                 $this->assertSame(
                     'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
-                    $request->getArtaxRequest()->getUri()
+                    (string) $request->getRequest()->getUri(),
                 );
 
                 $response = $this->createMock(Response::class);
@@ -165,7 +169,7 @@ class TldTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new Tld($this->httpClient))->validate('bar'));
+        $result = yield (new Tld($this->httpClient))->validate('bar');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

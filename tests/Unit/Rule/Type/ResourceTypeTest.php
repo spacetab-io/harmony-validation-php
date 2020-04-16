@@ -2,93 +2,93 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Type;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Type\ResourceType;
-use function Amp\Promise\wait;
 
-class ResourceTypeTest extends TestCase
+class ResourceTypeTest extends AsyncTestCase
 {
     public function testRuleImplementsInterface(): void
     {
         $this->assertInstanceOf(Rule::class, new ResourceType());
     }
 
-    public function testValidateFailsWhenPassingAnInteger(): void
+    public function testValidateFailsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(1));
+        $result = yield (new ResourceType())->validate(1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloat(): void
+    public function testValidateFailsWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(1.1));
+        $result = yield (new ResourceType())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingABoolean(): void
+    public function testValidateFailsWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(true));
+        $result = yield (new ResourceType())->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnArray(): void
+    public function testValidateFailsWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate([]));
+        $result = yield (new ResourceType())->validate([]);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnObject(): void
+    public function testValidateFailsWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(new \DateTimeImmutable()));
+        $result = yield (new ResourceType())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingNull(): void
+    public function testValidateFailsWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(null));
+        $result = yield (new ResourceType())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingACallable(): void
+    public function testValidateFailsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate(static function (): void {
-        }));
+        $result = yield (new ResourceType())->validate(static function (): void {
+        });
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAString(): void
+    public function testValidateFailsWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate('€'));
+        $result = yield (new ResourceType())->validate('€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.ResourceType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAResource(): void
+    public function testValidateSucceedsWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -99,7 +99,7 @@ class ResourceTypeTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new ResourceType())->validate($resource));
+        $result = yield (new ResourceType())->validate($resource);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

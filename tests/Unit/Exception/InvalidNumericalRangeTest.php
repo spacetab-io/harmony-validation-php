@@ -2,11 +2,11 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Exception;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Exception\InvalidNumericalRange;
 use HarmonyIO\Validation\Exception\InvalidNumericValue;
 
-class InvalidNumericalRangeTest extends TestCase
+class InvalidNumericalRangeTest extends AsyncTestCase
 {
     public function testConstructorThrowsUpWhenPassingANonNumericalMinimumValue(): void
     {

@@ -2,43 +2,49 @@
 
 namespace HarmonyIO\ValidationTest\Integration\Rule\Isbn;
 
-use Amp\Artax\DefaultClient;
-use Amp\Redis\Client as RedisClient;
-use HarmonyIO\Cache\Provider\Redis;
-use HarmonyIO\HttpClient\Client\ArtaxClient;
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\PHPUnit\AsyncTestCase;
+use Amp\Redis\Config;
+use Amp\Redis\Redis as RedisClient;
+use Amp\Redis\RemoteExecutor;
+use Generator;
+use HarmonyIO\Cache\Provider\Redis as RedisProvider;
+use HarmonyIO\HttpClient\Client\HttpClient;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Isbn\Exists;
-use function Amp\Promise\wait;
 
-class ExistsTest extends TestCase
+class ExistsTest extends AsyncTestCase
 {
-    /** @var ArtaxClient */
+    /** @var HttpClient */
     private $httpClient;
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
+        parent::setUp();
+
         if (!isset($_ENV['BOOKS_API_KEY'])) {
             $this->markTestSkipped('Test skipped because the `BOOKS_API_KEY` google books API key is missing.');
         }
 
-        $this->httpClient = new ArtaxClient(new DefaultClient(), new Redis(new RedisClient('tcp://localhost:6379')));
+        $client = HttpClientBuilder::buildDefault();
+        $redis  = new RedisProvider(new RedisClient(new RemoteExecutor(Config::fromUri('tcp://localhost:6379'))));
+
+        $this->httpClient = new HttpClient($client, $redis);
     }
 
-    public function testValidateFailsWhenIsbnDoesNotExist(): void
+    public function testValidateFailsWhenIsbnDoesNotExist(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Exists($this->httpClient, $_ENV['BOOKS_API_KEY']))->validate('3999215003'));
+        $result = yield (new Exists($this->httpClient, $_ENV['BOOKS_API_KEY']))->validate('3999215003');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Isbn.Exists', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenIsbnExists(): void
+    public function testValidateSucceedsWhenIsbnExists(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Exists($this->httpClient, $_ENV['BOOKS_API_KEY']))->validate('9788970137506'));
+        $result = yield (new Exists($this->httpClient, $_ENV['BOOKS_API_KEY']))->validate('9788970137506');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

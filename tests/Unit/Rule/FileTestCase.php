@@ -2,24 +2,24 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
-use function Amp\Promise\wait;
 
 class FileTestCase extends StringTestCase
 {
-    public function testValidateFailsWhenFileDoesNotExists(): void
+    public function testValidateFailsWhenFileDoesNotExists(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(TEST_DATA_DIR . '/unknown-file.txt'));
+        $result = yield $this->testObject->validate(TEST_DATA_DIR . '/unknown-file.txt');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('FileSystem.File', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingADirectory(): void
+    public function testValidateFailsWhenPassingADirectory(): Generator
     {
         /** @var Result $result */
-        $result = wait($this->testObject->validate(TEST_DATA_DIR . '/file-system/existing'));
+        $result = yield $this->testObject->validate(TEST_DATA_DIR . '/file-system/existing');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('FileSystem.File', $result->getFirstError()->getMessage());

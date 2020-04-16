@@ -6,7 +6,6 @@ use Amp\Promise;
 use HarmonyIO\Cache\Ttl;
 use HarmonyIO\HttpClient\Client\Client;
 use HarmonyIO\HttpClient\Message\CachingRequest;
-use HarmonyIO\HttpClient\Message\Request;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
@@ -63,9 +62,9 @@ final class Tld implements Rule
         });
     }
 
-    private function buildRequest(): Request
+    private function buildRequest(): CachingRequest
     {
-        return new CachingRequest(self::class, new Ttl(Ttl::ONE_WEEK), self::SOURCE);
+        return new CachingRequest(self::class, self::SOURCE, 'GET', new Ttl(Ttl::ONE_WEEK));
     }
 
     private function isValidTld(string $result, string $tld): bool

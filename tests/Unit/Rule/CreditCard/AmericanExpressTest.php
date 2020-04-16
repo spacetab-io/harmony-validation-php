@@ -5,25 +5,26 @@ namespace HarmonyIO\ValidationTest\Unit\Rule\CreditCard;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\CreditCard\AmericanExpress;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class AmericanExpressTest extends StringTestCase
 {
     /**
      * @param mixed[] $data
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, AmericanExpress::class);
     }
 
     /**
      * @dataProvider provideInvalidCreditCardNumbers
+     * @param string $creditCardNumber
+     * @return \Generator
      */
-    public function testValidateFailsOnInvalidCreditCardNumber(string $creditCardNumber): void
+    public function testValidateFailsOnInvalidCreditCardNumber(string $creditCardNumber)
     {
         /** @var Result $result */
-        $result = wait((new AmericanExpress())->validate($creditCardNumber));
+        $result = yield (new AmericanExpress())->validate($creditCardNumber);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('CreditCard.AmericanExpress', $result->getFirstError()->getMessage());
@@ -31,11 +32,13 @@ class AmericanExpressTest extends StringTestCase
 
     /**
      * @dataProvider provideInvalidCreditCardCheckSums
+     * @param string $creditCardNumber
+     * @return \Generator
      */
-    public function testValidateFailsOnInvalidCreditCardCheckSums(string $creditCardNumber): void
+    public function testValidateFailsOnInvalidCreditCardCheckSums(string $creditCardNumber)
     {
         /** @var Result $result */
-        $result = wait((new AmericanExpress())->validate($creditCardNumber));
+        $result = yield (new AmericanExpress())->validate($creditCardNumber);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('CreditCard.LuhnChecksum', $result->getFirstError()->getMessage());
@@ -43,11 +46,13 @@ class AmericanExpressTest extends StringTestCase
 
     /**
      * @dataProvider provideValidCreditCardNumbers
+     * @param string $creditCardNumber
+     * @return \Generator
      */
-    public function testValidateSucceedsOnValidCreditCardNumber(string $creditCardNumber): void
+    public function testValidateSucceedsOnValidCreditCardNumber(string $creditCardNumber)
     {
         /** @var Result $result */
-        $result = wait((new AmericanExpress())->validate($creditCardNumber));
+        $result = yield (new AmericanExpress())->validate($creditCardNumber);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

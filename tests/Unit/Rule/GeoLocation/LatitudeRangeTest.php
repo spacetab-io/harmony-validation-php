@@ -2,19 +2,23 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\GeoLocation;
 
+use Generator;
 use HarmonyIO\Validation\Exception\InvalidLatitude;
 use HarmonyIO\Validation\Exception\InvalidNumericalRange;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\GeoLocation\LatitudeRange;
 use HarmonyIO\ValidationTest\Unit\Rule\NumericTestCase;
-use function Amp\Promise\wait;
 
 class LatitudeRangeTest extends NumericTestCase
 {
     /**
-     * @param mixed[] $data
+     * LatitudeRangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, LatitudeRange::class, 60, 80);
     }
@@ -59,197 +63,197 @@ class LatitudeRangeTest extends NumericTestCase
         new LatitudeRange(50, 90);
     }
 
-    public function testValidateFailsWhenPassingAnIntegerBelowThreshold(): void
+    public function testValidateFailsWhenPassingAnIntegerBelowThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate(-90));
+        $result = yield (new LatitudeRange(60, 80))->validate(-90);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAboveThreshold(): void
+    public function testValidateFailsWhenPassingAnIntegerAboveThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate(90));
+        $result = yield (new LatitudeRange(60, 80))->validate(90);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringBelowThreshold(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringBelowThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate('-90'));
+        $result = yield (new LatitudeRange(60, 80))->validate('-90');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringAboveThreshold(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringAboveThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate('90'));
+        $result = yield (new LatitudeRange(60, 80))->validate('90');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloatBelowThreshold(): void
+    public function testValidateFailsWhenPassingAFloatBelowThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate(-90.0));
+        $result = yield (new LatitudeRange(60, 80))->validate(-90.0);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloatAboveThreshold(): void
+    public function testValidateFailsWhenPassingAFloatAboveThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate(90.0));
+        $result = yield (new LatitudeRange(60, 80))->validate(90.0);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringBelowThreshold(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringBelowThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate('-90.0'));
+        $result = yield (new LatitudeRange(60, 80))->validate('-90.0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringAboveThreshold(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringAboveThreshold(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(60, 80))->validate('90.0'));
+        $result = yield (new LatitudeRange(60, 80))->validate('90.0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('GeoLocation.Latitude', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAnIntegerSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(12));
+        $result = yield (new LatitudeRange(13, 16))->validate(12);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(17));
+        $result = yield (new LatitudeRange(13, 16))->validate(17);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('12'));
+        $result = yield (new LatitudeRange(13, 16))->validate('12');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAnIntegerAsAStringBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAnIntegerAsAStringBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('17'));
+        $result = yield (new LatitudeRange(13, 16))->validate('17');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAFloatSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(12.9));
+        $result = yield (new LatitudeRange(13, 16))->validate(12.9);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(16.1));
+        $result = yield (new LatitudeRange(13, 16))->validate(16.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringSmallerThanMinimum(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringSmallerThanMinimum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('12.9'));
+        $result = yield (new LatitudeRange(13, 16))->validate('12.9');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Minimum', $result->getFirstError()->getMessage());
         $this->assertSame('minimum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(13, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(13.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateFailsWhenPassingAFloatAsAStringBiggerThanMaximum(): void
+    public function testValidateFailsWhenPassingAFloatAsAStringBiggerThanMaximum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('16.1'));
+        $result = yield (new LatitudeRange(13, 16))->validate('16.1');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Numeric.Maximum', $result->getFirstError()->getMessage());
         $this->assertSame('maximum', $result->getFirstError()->getParameters()[0]->getKey());
-        $this->assertSame(16, $result->getFirstError()->getParameters()[0]->getValue());
+        $this->assertSame(16.0, $result->getFirstError()->getParameters()[0]->getValue());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerWithinRange(): void
+    public function testValidateSucceedsWhenPassingAnIntegerWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(13));
+        $result = yield (new LatitudeRange(13, 16))->validate(13);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAnIntegerAsStringWithinRange(): void
+    public function testValidateSucceedsWhenPassingAnIntegerAsStringWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('13'));
+        $result = yield (new LatitudeRange(13, 16))->validate('13');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatWithinRange(): void
+    public function testValidateSucceedsWhenPassingAFloatWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate(13.0));
+        $result = yield (new LatitudeRange(13, 16))->validate(13.0);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingAFloatAsStringWithinRange(): void
+    public function testValidateSucceedsWhenPassingAFloatAsStringWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new LatitudeRange(13, 16))->validate('13.0'));
+        $result = yield (new LatitudeRange(13, 16))->validate('13.0');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

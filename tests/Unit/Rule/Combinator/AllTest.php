@@ -2,49 +2,48 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Combinator;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Combinator\All;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Text\MaximumLength;
 use HarmonyIO\Validation\Rule\Text\MinimumLength;
-use function Amp\Promise\wait;
 
-class AllTest extends TestCase
+class AllTest extends AsyncTestCase
 {
-    public function testRuleImplementsInterface(): void
+    public function testRuleImplementsInterface()
     {
         $this->assertInstanceOf(Rule::class, new All());
     }
 
-    public function testValidateSucceedsWhenNoRulesAreAdded(): void
+    public function testValidateSucceedsWhenNoRulesAreAdded()
     {
         /** @var Result $result */
-        $result = wait((new All())->validate('Test value'));
+        $result = yield (new All())->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenBothRulesAreValid(): void
+    public function testValidateSucceedsWhenBothRulesAreValid()
     {
         /** @var Result $result */
-        $result = wait((new All(
+        $result = yield (new All(
             new MinimumLength(3),
             new MaximumLength(15)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateFailsWhenBothRulesAreInvalid(): void
+    public function testValidateFailsWhenBothRulesAreInvalid()
     {
         /** @var Result $result */
-        $result = wait((new All(
+        $result = yield (new All(
             new MaximumLength(9),
             new MaximumLength(9)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MaximumLength', $result->getFirstError()->getMessage());
@@ -52,26 +51,26 @@ class AllTest extends TestCase
         $this->assertSame('Text.MaximumLength', $result->getErrors()[1]->getMessage());
     }
 
-    public function testValidateFailsWhenFirstRuleIsInvalid(): void
+    public function testValidateFailsWhenFirstRuleIsInvalid()
     {
         /** @var Result $result */
-        $result = wait((new All(
+        $result = yield (new All(
             new MinimumLength(11),
             new MaximumLength(15)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MinimumLength', $result->getFirstError()->getMessage());
         $this->assertCount(1, $result->getErrors());
     }
 
-    public function testValidateFailsWhenLastRuleIsInvalid(): void
+    public function testValidateFailsWhenLastRuleIsInvalid()
     {
         /** @var Result $result */
-        $result = wait((new All(
+        $result = yield (new All(
             new MinimumLength(3),
             new MaximumLength(9)
-        ))->validate('Test value'));
+        ))->validate('Test value');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Text.MaximumLength', $result->getFirstError()->getMessage());

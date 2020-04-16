@@ -3,13 +3,13 @@
 namespace HarmonyIO\ValidationTest\Unit\Rule\VideoService\YouTube;
 
 use Amp\Success;
+use Generator;
 use HarmonyIO\HttpClient\Client\Client;
 use HarmonyIO\HttpClient\Message\Response;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\VideoService\YouTube\VideoUrl;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function Amp\Promise\wait;
 
 class VideoUrlTest extends StringTestCase
 {
@@ -17,24 +17,27 @@ class VideoUrlTest extends StringTestCase
     private $httpClient;
 
     /**
-     * @param mixed[] $data
+     * VideoUrlTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::__construct($name, $data, $dataName, VideoUrl::class, $this->httpClient);
     }
 
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
-    public function setUp()
+    public function setUp(): void
     {
         $this->httpClient = $this->createMock(Client::class);
 
         parent::setUp();
     }
 
-    public function testValidateFailsOnUnrecognizedUrlProtocol(): void
+    public function testValidateFailsOnUnrecognizedUrlProtocol(): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -42,13 +45,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('ftp://youtube.com/watch?v=jNQXAC9IVRw'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('ftp://youtube.com/watch?v=jNQXAC9IVRw');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsOnUnrecognizedDomain(): void
+    public function testValidateFailsOnUnrecognizedDomain(): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -56,13 +59,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://notyoutube.com/watch?v=jNQXAC9IVRw'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://notyoutube.com/watch?v=jNQXAC9IVRw');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsOnMissingPath(): void
+    public function testValidateFailsOnMissingPath(): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -70,13 +73,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://youtube.com/'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://youtube.com/');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenWatchIsInPathButMissingAQueryString(): void
+    public function testValidateFailsWhenWatchIsInPathButMissingAQueryString(): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -84,13 +87,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://youtube.com/watch'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://youtube.com/watch');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenWatchIsInPathButMissingTheVQueryStringParameter(): void
+    public function testValidateFailsWhenWatchIsInPathButMissingTheVQueryStringParameter(): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -98,7 +101,7 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://youtube.com/watch?foo=bar'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://youtube.com/watch?foo=bar');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
@@ -107,7 +110,7 @@ class VideoUrlTest extends StringTestCase
     /**
      * @dataProvider provideInvalidYouTubeUrls
      */
-    public function testValidateFailsForInvalidYouTubeUrl(string $url): void
+    public function testValidateFailsForInvalidYouTubeUrl(string $url): Generator
     {
         $this->httpClient
             ->expects($this->never())
@@ -115,13 +118,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate($url));
+        $result = yield (new VideoUrl($this->httpClient))->validate($url);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('VideoService.YouTube.VideoUrl', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenWatchIsNotInPath(): void
+    public function testValidateSucceedsWhenWatchIsNotInPath(): Generator
     {
         $response = $this->createMock(Response::class);
 
@@ -142,13 +145,13 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://youtube.com/foobar'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://youtube.com/foobar');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenUrlContainsBothTheWatchPathAndTheVQueryStringParameter(): void
+    public function testValidateSucceedsWhenUrlContainsBothTheWatchPathAndTheVQueryStringParameter(): Generator
     {
         $response = $this->createMock(Response::class);
 
@@ -169,7 +172,7 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate('https://youtube.com/watch?v=bar'));
+        $result = yield (new VideoUrl($this->httpClient))->validate('https://youtube.com/watch?v=bar');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
@@ -178,7 +181,7 @@ class VideoUrlTest extends StringTestCase
     /**
      * @dataProvider provideValidYouTubeUrls
      */
-    public function testValidateSucceedsForValidYouTubeUrl(string $url): void
+    public function testValidateSucceedsForValidYouTubeUrl(string $url): Generator
     {
         $response = $this->createMock(Response::class);
 
@@ -199,14 +202,14 @@ class VideoUrlTest extends StringTestCase
         ;
 
         /** @var Result $result */
-        $result = wait((new VideoUrl($this->httpClient))->validate($url));
+        $result = yield (new VideoUrl($this->httpClient))->validate($url);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidYouTubeUrls(): array
     {
@@ -220,7 +223,7 @@ class VideoUrlTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidYouTubeUrls(): array
     {

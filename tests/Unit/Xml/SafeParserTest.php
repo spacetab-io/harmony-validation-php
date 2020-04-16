@@ -2,11 +2,11 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Xml;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Exception\InvalidXml;
 use HarmonyIO\Validation\Xml\SafeParser;
 
-class SafeParserTest extends TestCase
+class SafeParserTest extends AsyncTestCase
 {
     public function testConstructorThrowsOnBrokenXml(): void
     {

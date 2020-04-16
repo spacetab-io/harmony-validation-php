@@ -2,18 +2,22 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Network\IpAddress;
 
+use Generator;
 use HarmonyIO\Validation\Exception\InvalidCidrRange;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Network\IpAddress\InCidrRange;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class InCidrRangeTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * InCidrRangeTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, InCidrRange::class);
     }
@@ -41,118 +45,115 @@ class InCidrRangeTest extends StringTestCase
         new InCidrRange('2620:0:861:1::/129');
     }
 
-    public function testValidateFailsWhenPassingAnIpv4AddressBelowRange(): void
+    public function testValidateFailsWhenPassingAnIpv4AddressBelowRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('10.0.0.0/24'))->validate('9.255.255.255'));
+        $result = yield (new InCidrRange('10.0.0.0/24'))->validate('9.255.255.255');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv4AddressAboveRange(): void
+    public function testValidateFailsWhenPassingAnIpv4AddressAboveRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('10.0.0.0/24'))->validate('10.0.1.0'));
+        $result = yield (new InCidrRange('10.0.0.0/24'))->validate('10.0.1.0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv4AddressBelowRanges(): void
+    public function testValidateFailsWhenPassingAnIpv4AddressBelowRanges(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('8.255.255.255'));
+        $result = yield (new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('8.255.255.255');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv4AddressAboveRanges(): void
+    public function testValidateFailsWhenPassingAnIpv4AddressAboveRanges(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('10.0.1.0'));
+        $result = yield (new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('10.0.1.0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv6AddressBelowRange(): void
+    public function testValidateFailsWhenPassingAnIpv6AddressBelowRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('2620:0:2d0:200::7/24'))->validate('2619:ff:ffff:ffff:ffff:ffff:ffff:ffff'));
+        $result = yield (new InCidrRange('2620:0:2d0:200::7/24'))->validate('2619:ff:ffff:ffff:ffff:ffff:ffff:ffff');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv6AddressAboveRange(): void
+    public function testValidateFailsWhenPassingAnIpv6AddressAboveRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('2620:0:2d0:200::7/24'))->validate('2621:0:0:0:0:0:0:0'));
+        $result = yield (new InCidrRange('2620:0:2d0:200::7/24'))->validate('2621:0:0:0:0:0:0:0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv6AddressBelowRanges(): void
+    public function testValidateFailsWhenPassingAnIpv6AddressBelowRanges(): Generator
     {
         /** @var Result $result */
         // phpcs:ignore PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket
-        $result = wait((new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
-            ->validate('2618:ff:ffff:ffff:ffff:ffff:ffff:ffff')
-        );
+        $result = yield (new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
+            ->validate('2618:ff:ffff:ffff:ffff:ffff:ffff:ffff');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingAnIpv6AddressAboveRanges(): void
+    public function testValidateFailsWhenPassingAnIpv6AddressAboveRanges(): Generator
     {
         /** @var Result $result */
         // phpcs:ignore PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket
-        $result = wait((new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
-            ->validate('2621:0:0:0:0:0:0:0')
-        );
+        $result = yield (new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
+            ->validate('2621:0:0:0:0:0:0:0');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Network.IpAddress.InCidrRange', $result->getFirstError()->getMessage());
     }
-    
-    public function testValidateSucceedsTrueWhenPassingAnIpv4AddressWithinRange(): void
+
+    public function testValidateSucceedsTrueWhenPassingAnIpv4AddressWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('10.0.0.0/24'))->validate('10.0.0.1'));
+        $result = yield (new InCidrRange('10.0.0.0/24'))->validate('10.0.0.1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateReturnsTrueWhenPassingAnIpv4AddressWithinTheRangeOfTheSecondDefinedRange(): void
+    public function testValidateReturnsTrueWhenPassingAnIpv4AddressWithinTheRangeOfTheSecondDefinedRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('10.0.0.1'));
+        $result = yield (new InCidrRange('9.0.0.0/24', '10.0.0.0/24'))->validate('10.0.0.1');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsTrueWhenPassingAnIpv6AddressWithinRange(): void
+    public function testValidateSucceedsTrueWhenPassingAnIpv6AddressWithinRange(): Generator
     {
         /** @var Result $result */
-        $result = wait((new InCidrRange('2620:0:2d0:200::7/24'))->validate('2620:0:0:0:0:0:0:0'));
+        $result = yield (new InCidrRange('2620:0:2d0:200::7/24'))->validate('2620:0:0:0:0:0:0:0');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateReturnsTrueWhenPassingAnIpv6AddressWithinTheRangeOfTheSecondDefinedRange(): void
+    public function testValidateReturnsTrueWhenPassingAnIpv6AddressWithinTheRangeOfTheSecondDefinedRange(): Generator
     {
         /** @var Result $result */
         // phpcs:ignore PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket
-        $result = wait((new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
-            ->validate('2620:0:0:0:0:0:0:0')
-        );
+        $result = yield (new InCidrRange('2619:0:2d0:200::7/24', '2620:0:2d0:200::7/24'))
+            ->validate('2620:0:0:0:0:0:0:0');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

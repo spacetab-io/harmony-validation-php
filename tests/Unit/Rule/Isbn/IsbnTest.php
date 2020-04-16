@@ -2,52 +2,56 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Isbn;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Isbn\Isbn;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class IsbnTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * IsbnTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param string $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Isbn::class);
     }
 
-    public function testValidateFailsWhenPassingInAnInvalidIsbn10(): void
+    public function testValidateFailsWhenPassingInAnInvalidIsbn10(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Isbn())->validate('0345391803'));
+        $result = yield (new Isbn())->validate('0345391803');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Isbn.Isbn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenPassingInAnInvalidIsbn13(): void
+    public function testValidateFailsWhenPassingInAnInvalidIsbn13(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Isbn())->validate('9788970137507'));
+        $result = yield (new Isbn())->validate('9788970137507');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Isbn.Isbn', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingInAValidIsbn10(): void
+    public function testValidateSucceedsWhenPassingInAValidIsbn10(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Isbn())->validate('0345391802'));
+        $result = yield (new Isbn())->validate('0345391802');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
-    public function testValidateSucceedsWhenPassingInAValidIsbn13(): void
+    public function testValidateSucceedsWhenPassingInAValidIsbn13(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Isbn())->validate('9788970137506'));
+        $result = yield (new Isbn())->validate('9788970137506');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

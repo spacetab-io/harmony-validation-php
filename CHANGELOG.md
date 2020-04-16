@@ -31,6 +31,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *None*
 
+## [1.1.0] - 2020-04-16
+
+### Added
+
+*None*
+
+### Changed
+
+* Moved caching packages to dev section in composer. 
+* Rewritten tests to use official `amphp/phpunit-util` package instead of `harmonyio/phpunit-extensions`.
+
+### Deprecated
+
+*None*
+
+### Removed
+
+* Removed `amphp/artax` composer package because is deprecated.
+* Removed `harmonyio/phpunit-extensions` composer package.
+
+### Fixed
+
+* PHP 7.4 compatibility (in tests)
+
+### Security
+
+*None*
+
 ## [1.0.0-rc1] - 2019-01-01
 
 ### Added

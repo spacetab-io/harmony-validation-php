@@ -2,88 +2,92 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\BankAccount\Iban\Country;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\BankAccount\Iban\Country\Azerbaijan;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class AzerbaijanTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * AzerbaijanTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Azerbaijan::class);
     }
 
-    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): void
+    public function testValidateFailsWhenStringDoesNotStartWithCountryCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('XZ21NABZ00000000137010001944'));
+        $result = yield (new Azerbaijan())->validate('XZ21NABZ00000000137010001944');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveChecksum(): void
+    public function testValidateFailsWhenStringDoesNotHaveChecksum(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZx1NABZ00000000137010001944'));
+        $result = yield (new Azerbaijan())->validate('AZx1NABZ00000000137010001944');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): void
+    public function testValidateFailsWhenStringDoesNotHaveBankAndBranchCode(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ211ABZ00000000137010001944'));
+        $result = yield (new Azerbaijan())->validate('AZ211ABZ00000000137010001944');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): void
+    public function testValidateFailsWhenStringDoesNotHaveAccountNumber(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ21NABZ0000000013701000194!'));
+        $result = yield (new Azerbaijan())->validate('AZ21NABZ0000000013701000194!');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooShort(): void
+    public function testValidateFailsWhenStringIsTooShort(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ21NABZ0000000013701000194'));
+        $result = yield (new Azerbaijan())->validate('AZ21NABZ0000000013701000194');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenStringIsTooLong(): void
+    public function testValidateFailsWhenStringIsTooLong(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ21NABZ000000001370100019444'));
+        $result = yield (new Azerbaijan())->validate('AZ21NABZ000000001370100019444');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Country.Azerbaijan', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateFailsWhenChecksumFails(): void
+    public function testValidateFailsWhenChecksumFails(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ21NABZ00000000137010001945'));
+        $result = yield (new Azerbaijan())->validate('AZ21NABZ00000000137010001945');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Checksum', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingAValidIbanString(): void
+    public function testValidateSucceedsWhenPassingAValidIbanString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new Azerbaijan())->validate('AZ21NABZ00000000137010001944'));
+        $result = yield (new Azerbaijan())->validate('AZ21NABZ00000000137010001944');
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

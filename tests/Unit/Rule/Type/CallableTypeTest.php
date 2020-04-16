@@ -2,74 +2,74 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\Type;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\Rule;
 use HarmonyIO\Validation\Rule\Type\CallableType;
-use function Amp\Promise\wait;
 
-class CallableTypeTest extends TestCase
+class CallableTypeTest extends AsyncTestCase
 {
     public function testRuleImplementsInterface(): void
     {
         $this->assertInstanceOf(Rule::class, new CallableType());
     }
 
-    public function testValidateFailsWhenPassingAnInteger(): void
+    public function testValidateFailsWhenPassingAnInteger(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(1));
+        $result = yield (new CallableType())->validate(1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsFalseWhenPassingAFloat(): void
+    public function testValidateReturnsFalseWhenPassingAFloat(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(1.1));
+        $result = yield (new CallableType())->validate(1.1);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsTrueWhenPassingABoolean(): void
+    public function testValidateReturnsTrueWhenPassingABoolean(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(true));
+        $result = yield (new CallableType())->validate(true);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsFalseWhenPassingAnArray(): void
+    public function testValidateReturnsFalseWhenPassingAnArray(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate([]));
+        $result = yield (new CallableType())->validate([]);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsFalseWhenPassingAnObject(): void
+    public function testValidateReturnsFalseWhenPassingAnObject(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(new \DateTimeImmutable()));
+        $result = yield (new CallableType())->validate(new \DateTimeImmutable());
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsFalseWhenPassingNull(): void
+    public function testValidateReturnsFalseWhenPassingNull(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(null));
+        $result = yield (new CallableType())->validate(null);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateReturnsFalseWhenPassingAResource(): void
+    public function testValidateReturnsFalseWhenPassingAResource(): Generator
     {
         $resource = fopen('php://memory', 'r');
 
@@ -80,7 +80,7 @@ class CallableTypeTest extends TestCase
         }
 
         /** @var Result $result */
-        $result = wait((new CallableType())->validate($resource));
+        $result = yield (new CallableType())->validate($resource);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
@@ -88,20 +88,20 @@ class CallableTypeTest extends TestCase
         fclose($resource);
     }
 
-    public function testValidateReturnsFalseWhenPassingAString(): void
+    public function testValidateReturnsFalseWhenPassingAString(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate('€'));
+        $result = yield (new CallableType())->validate('€');
 
         $this->assertFalse($result->isValid());
         $this->assertSame('Type.CallableType', $result->getFirstError()->getMessage());
     }
 
-    public function testValidateSucceedsWhenPassingACallable(): void
+    public function testValidateSucceedsWhenPassingACallable(): Generator
     {
         /** @var Result $result */
-        $result = wait((new CallableType())->validate(static function (): void {
-        }));
+        $result = yield (new CallableType())->validate(static function (): void {
+        });
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());

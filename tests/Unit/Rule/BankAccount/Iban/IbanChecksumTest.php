@@ -2,17 +2,21 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Rule\BankAccount\Iban;
 
+use Generator;
 use HarmonyIO\Validation\Result\Result;
 use HarmonyIO\Validation\Rule\BankAccount\Iban\Checksum;
 use HarmonyIO\ValidationTest\Unit\Rule\StringTestCase;
-use function Amp\Promise\wait;
 
 class IbanChecksumTest extends StringTestCase
 {
     /**
-     * @param mixed[] $data
+     * IbanChecksumTest constructor.
+     *
+     * @param string|null $name
+     * @param array<mixed> $data
+     * @param mixed $dataName
      */
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName, Checksum::class);
     }
@@ -20,10 +24,10 @@ class IbanChecksumTest extends StringTestCase
     /**
      * @dataProvider provideInvalidIbanCodes
      */
-    public function testValidateChecksumReturnsFalseOnInvalidChecksum(string $ibanCode): void
+    public function testValidateChecksumReturnsFalseOnInvalidChecksum(string $ibanCode): Generator
     {
         /** @var Result $result */
-        $result = wait((new Checksum())->validate($ibanCode));
+        $result = yield (new Checksum())->validate($ibanCode);
 
         $this->assertFalse($result->isValid());
         $this->assertSame('BankAccount.Iban.Checksum', $result->getFirstError()->getMessage());
@@ -32,17 +36,17 @@ class IbanChecksumTest extends StringTestCase
     /**
      * @dataProvider provideValidIbanCodes
      */
-    public function testValidateChecksumReturnsTrueOnValidChecksum(string $ibanCode): void
+    public function testValidateChecksumReturnsTrueOnValidChecksum(string $ibanCode): Generator
     {
         /** @var Result $result */
-        $result = wait((new Checksum())->validate($ibanCode));
+        $result = yield (new Checksum())->validate($ibanCode);
 
         $this->assertTrue($result->isValid());
         $this->assertNull($result->getFirstError());
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideInvalidIbanCodes(): array
     {
@@ -119,7 +123,7 @@ class IbanChecksumTest extends StringTestCase
     }
 
     /**
-     * @return string[]
+     * @return array<array<string>>
      */
     public function provideValidIbanCodes(): array
     {

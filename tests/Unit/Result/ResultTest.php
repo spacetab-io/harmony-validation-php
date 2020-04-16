@@ -2,11 +2,11 @@
 
 namespace HarmonyIO\ValidationTest\Unit\Result;
 
-use HarmonyIO\PHPUnitExtension\TestCase;
+use Amp\PHPUnit\AsyncTestCase;
 use HarmonyIO\Validation\Result\Error;
 use HarmonyIO\Validation\Result\Result;
 
-class ResultTest extends TestCase
+class ResultTest extends AsyncTestCase
 {
     public function testIsValidReturnsTrueWhenValid(): void
     {

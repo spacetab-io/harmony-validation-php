@@ -12,10 +12,10 @@ use function Amp\call;
 
 class LatitudeRange implements Rule
 {
-    /** @var int */
+    /** @var float */
     private $minimumLatitude;
 
-    /** @var int */
+    /** @var float */
     private $maximumLatitude;
 
     public function __construct(float $minimumLatitude, float $maximumLatitude)
