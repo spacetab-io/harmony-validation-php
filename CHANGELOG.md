@@ -31,6 +31,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *None*
 
+## [1.1.1] - 2020-07-10
+
+### Added
+
+*None*
+
+### Changed
+
+* Update `amphp/parallel-functions` to newest version (`^1.0`) where symlink removed from package.
+
+### Deprecated
+
+*None*
+
+### Removed
+
+*None*
+
+### Fixed
+
+*None*
+
+### Security
+
+*None*
+
 ## [1.1.0] - 2020-04-16
 
 ### Added

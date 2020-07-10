@@ -23,7 +23,7 @@
         "amphp/amp": "^2.4",
         "amphp/dns": "^1.2",
         "amphp/file": "^1.0",
-        "amphp/parallel-functions": "^0.1",
+        "amphp/parallel-functions": "^1.0",
         "amphp/process": "^1.1",
         "amphp/uri": "^0.1",
         "egulias/email-validator": "^2.1",
